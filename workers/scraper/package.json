@@ -1,0 +1,19 @@
+{
+  "name": "scraper",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.28.1",
+  "dependencies": {
+    "@matche/db": "workspace:*",
+    "@matche/shared": "workspace:*",
+    "bullmq": "^5.66.5",
+    "puppeteer": "^24.35.0"
+  }
+}
