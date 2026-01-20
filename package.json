@@ -4,7 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "turbo run build",
+      "dev": "turbo run dev",
+      "db:push": "turbo run db:push",
+      "clean": "rm -rf node_modules && pnpm recursive exec -- rm -rf node_modules"
   },
   "keywords": [],
   "author": "",
@@ -16,5 +20,10 @@
     "prettier": "^3.8.0",
     "turbo": "^2.7.5",
     "typescript": "^5.9.3"
+  },
+  "pnpm": {
+    "overrides": {
+      "zeptomatch": "2.1.0"
+    }
   }
 }

@@ -2,18 +2,22 @@
   "name": "@matche/db",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "prisma generate",
+    "build": "prisma generate",
+    "generate": "prisma generate",
+    "db:push": "prisma db push"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.28.1",
   "devDependencies": {
-    "prisma": "^7.2.0"
+    "prisma": "^6.2.1"
   },
   "dependencies": {
-    "@prisma/client": "^7.2.0"
+    "@prisma/client": "^6.2.1"
   }
 }
