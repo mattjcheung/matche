@@ -1,9 +1,19 @@
 import express from 'express';
+import cors from 'cors';
 import { Webhook } from 'svix';
 import { prisma } from '@matche/db';
 import 'dotenv/config'; // Ensures .env is loaded immediately
+import * as trpcExpress from '@trpc/server/adapters/express';
+import { createContext } from './trpc/trpc';
+import { appRouter } from './trpc/routers/_app';
 
 const app = express();
+
+// --- CORS ---
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  credentials: true,
+}));
 
 // --- 1. GLOBAL LOGGER (The "Detective") ---
 // This will print every request to your terminal so you can see why it's 404ing
@@ -75,12 +85,21 @@ if (evt.type === 'user.created') {
 // --- 3. STANDARD MIDDLEWARE (For everything else) ---
 app.use(express.json());
 
-// --- 4. OTHER ROUTES ---
+// --- 4. TRPC ROUTES ---
+app.use(
+  '/trpc',
+  trpcExpress.createExpressMiddleware({
+    router: appRouter,
+    createContext,
+  })
+);
+
+// --- 5. OTHER ROUTES ---
 app.get('/debug', (req, res) => {
   res.send("If you see this, the API is reachable!");
 });
 
-// --- 5. 404 HANDLER ---
+// --- 6. 404 HANDLER ---
 app.use((req, res) => {
   console.log(`🚫 404 - Not Found: ${req.method} ${req.url}`);
   res.status(404).send(`Route ${req.url} not found on this server.`);

@@ -8,28 +8,170 @@ generator client {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  username  String   @unique
-  trips     Trip[]
-  posts     Post[]
+  id          String    @id @default(cuid())
+  email       String    @unique
+  username    String    @unique
+  firstName   String?
+  lastName    String?
+  bio         String?
+  avatarUrl   String?
+  isPublic    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now()) @updatedAt
+  
+  // Relations
+  trips       Trip[]
+  posts       Post[]
+  photos      Photo[]
+  comments    Comment[]
+  followers   Follow[]  @relation("UserFollowers")
+  following   Follow[]  @relation("UserFollowing")
+  notifications Notification[]
 }
 
 model Trip {
   id          String   @id @default(cuid())
   title       String
+  description String?
   isGroupTrip Boolean  @default(false)
   startDate   DateTime
   endDate     DateTime
-  planner     User     @relation(fields: [plannerId], references: [id])
+  status      TripStatus @default(PLANNED)
+  visibility  Visibility @default(PUBLIC)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  planner     User     @relation(fields: [plannerId], references: [id], onDelete: Cascade)
   plannerId   String
+  destinations TripDestination[]
+  photos      Photo[]
+  posts       Post[]
+  comments    Comment[]
+}
+
+model Destination {
+  id          String   @id @default(cuid())
+  name        String
+  city        String?
+  country     String
+  latitude    Float?
+  longitude   Float?
+  description String?
+  createdAt   DateTime @default(now())
+  
+  // Relations
+  trips       TripDestination[]
+  
+  @@unique([name, country])
+}
+
+model TripDestination {
+  id            String   @id @default(cuid())
+  arrivalDate   DateTime?
+  departureDate DateTime?
+  notes         String?
+  orderIndex    Int      @default(0)
+  
+  // Relations
+  trip          Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  tripId        String
+  destination   Destination @relation(fields: [destinationId], references: [id], onDelete: Cascade)
+  destinationId String
+  
+  @@unique([tripId, destinationId])
+}
+
+model Photo {
+  id          String   @id @default(cuid())
+  url         String
+  caption     String?
+  takenAt     DateTime?
+  createdAt   DateTime @default(now())
+  
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  trip        Trip?    @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  tripId      String?
+  post        Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId      String?
 }
 
 model Post {
   id        String   @id @default(cuid())
   content   String
-  imageUrl  String?
-  author    User     @relation(fields: [authorId], references: [id])
-  authorId  String
+  visibility Visibility @default(PUBLIC)
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  String
+  trip      Trip?    @relation(fields: [tripId], references: [id], onDelete: SetNull)
+  tripId    String?
+  photos    Photo[]
+  comments  Comment[]
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  String
+  post      Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String?
+  trip      Trip?    @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  tripId    String?
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  
+  // Relations
+  follower    User     @relation("UserFollowing", fields: [followerId], references: [id], onDelete: Cascade)
+  followerId  String
+  following   User     @relation("UserFollowers", fields: [followingId], references: [id], onDelete: Cascade)
+  followingId String
+  
+  @@unique([followerId, followingId])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  type      NotificationType
+  content   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+}
+
+enum TripStatus {
+  PLANNED
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+enum Visibility {
+  PUBLIC
+  FRIENDS_ONLY
+  PRIVATE
+}
+
+enum NotificationType {
+  TRIP_INVITE
+  TRIP_COMMENT
+  POST_LIKE
+  POST_COMMENT
+  NEW_FOLLOWER
+  FRIEND_TRIP
 }

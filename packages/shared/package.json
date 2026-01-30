@@ -2,12 +2,15 @@
   "name": "@matche/shared",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/types.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.28.1"
+  "packageManager": "pnpm@10.28.1",
+  "dependencies": {
+    "zod": "^3.22.4"
+  }
 }
