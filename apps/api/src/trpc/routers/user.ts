@@ -70,6 +70,33 @@ export const userRouter = router({
       return user;
     }),
 
+  // Search users (for feed search - friends and creators)
+  searchUsers: protectedProcedure
+    .input(z.object({ query: z.string().min(1).max(100) }))
+    .query(async ({ ctx, input }) => {
+      return await ctx.prisma.user.findMany({
+        where: {
+          id: { not: ctx.userId },
+          OR: [
+            { username: { contains: input.query, mode: 'insensitive' } },
+            { firstName: { contains: input.query, mode: 'insensitive' } },
+            { lastName: { contains: input.query, mode: 'insensitive' } },
+          ],
+        },
+        select: {
+          id: true,
+          username: true,
+          firstName: true,
+          lastName: true,
+          avatarUrl: true,
+          _count: {
+            select: { trips: true, followers: true },
+          },
+        },
+        take: 20,
+      });
+    }),
+
   // Update profile
   updateProfile: protectedProcedure
     .input(UpdateProfileSchema)

@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.36.8",
+    "react-simple-maps": "^3.0.0",
     "@matche/db": "workspace:*",
     "@matche/shared": "workspace:*",
     "@tanstack/react-query": "^5.62.14",
