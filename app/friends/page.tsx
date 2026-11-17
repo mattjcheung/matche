@@ -10,6 +10,7 @@ import {
 import { FriendsMap } from "./FriendsMap";
 import { Volunteering } from "./Volunteering";
 import styles from "./page.module.css";
+import { loadDb } from "@/lib/data/db";
 
 export const metadata: Metadata = {
   title: "Friends",
@@ -21,7 +22,8 @@ const DOT_CLASS: Record<FriendTripColumnStage, string> = {
   completed: styles.dotCompleted,
 };
 
-export default function FriendsPage() {
+export default async function FriendsPage() {
+  await loadDb();
   const map = getFriendsMap();
   const columns = getFriendTripColumns();
   const volunteering = getVolunteering();

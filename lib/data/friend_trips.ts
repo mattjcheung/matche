@@ -59,12 +59,12 @@ export const friendTripMembers: TripMember[] = friendTrips.map((t) => ({
  * "places in common".
  */
 export const tripLocations: TripLocation[] = [
-  // Alex – Japan with the crew
+  // Matthew – Japan with the crew
   { id: "loc_japan_tokyo", trip_id: "trip_japan", position: 1, name: "Tokyo", region: "Japan", lon: 139.7, lat: 35.7, starts_on: "2027-03-29", ends_on: "2027-04-03" },
   { id: "loc_japan_hakone", trip_id: "trip_japan", position: 2, name: "Hakone", region: "Japan", lon: 139.1, lat: 35.2, starts_on: "2027-04-03", ends_on: "2027-04-04" },
   { id: "loc_japan_kyoto", trip_id: "trip_japan", position: 3, name: "Kyoto", region: "Japan", lon: 135.8, lat: 35, starts_on: "2027-04-04", ends_on: "2027-04-09" },
   { id: "loc_japan_osaka", trip_id: "trip_japan", position: 4, name: "Osaka", region: "Japan", lon: 135.5, lat: 34.7, starts_on: "2027-04-09", ends_on: "2027-04-14" },
-  // Alex – Tasmania, Patagonia, Portugal & Spain
+  // Matthew – Tasmania, Patagonia, Portugal & Spain
   { id: "loc_tas_hobart", trip_id: "trip_tasmania", position: 1, name: "Hobart", region: "Tasmania", lon: 147.3, lat: -42.9, starts_on: null, ends_on: null },
   { id: "loc_tas_cradle", trip_id: "trip_tasmania", position: 2, name: "Cradle Mountain", region: "Tasmania", lon: 145.9, lat: -41.7, starts_on: null, ends_on: null },
   { id: "loc_pat_chalten", trip_id: "trip_patagonia", position: 1, name: "El Chaltén", region: "Argentina", lon: -72.9, lat: -49.3, starts_on: null, ends_on: null },

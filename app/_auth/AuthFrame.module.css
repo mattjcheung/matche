@@ -1,0 +1,30 @@
+.page {
+  min-height: 100vh;
+  background: var(--color-bg);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-14);
+  padding: var(--space-14) var(--page-gutter);
+}
+
+.intro {
+  flex: 0 1 420px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.wordmark {
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-26);
+  letter-spacing: var(--tracking-snug);
+}

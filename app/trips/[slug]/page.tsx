@@ -12,17 +12,14 @@ import {
   getTripItinerary,
   listTripBookings,
   listTripExperiences,
-  listTripSlugs,
 } from "@/lib/data/queries/trip-planner";
 import { getTripBySlug } from "@/lib/data/queries/trips";
 import { Itinerary } from "./Itinerary";
 import styles from "./page.module.css";
-
-export function generateStaticParams() {
-  return listTripSlugs().map((slug) => ({ slug }));
-}
+import { loadDb } from "@/lib/data/db";
 
 export async function generateMetadata({ params }: PageProps<"/trips/[slug]">): Promise<Metadata> {
+  await loadDb();
   const { slug } = await params;
   const trip = getTripBySlug(slug);
   return { title: trip ? trip.name : "Trip not found" };
@@ -38,6 +35,7 @@ const SECTIONS = [
 ];
 
 export default async function TripPage({ params }: PageProps<"/trips/[slug]">) {
+  await loadDb();
   const { slug } = await params;
   const trip = getTripBySlug(slug);
   if (!trip) notFound();

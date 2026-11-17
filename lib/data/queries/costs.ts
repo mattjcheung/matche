@@ -1,8 +1,7 @@
 import { formatDayMonth, formatMoney } from "@/lib/format";
-import { expenseSplits, expenses } from "../expenses";
 import type { CurrencyCode, ExpenseCategory } from "../types";
-import { CURRENT_USER_ID, getUser } from "../users";
 import { getTripMembers } from "./trips";
+import { db, me, getUser } from "../db";
 
 /**
  * Cost-tracker maths. Everything is derived from `expenses` + `expense_splits`
@@ -47,11 +46,11 @@ export interface CostSummaryVM {
 
 const CATEGORY_ORDER: ExpenseCategory[] = ["Stays", "Getting around", "Food", "Activities", "Other"];
 
-export function getCostSummary(tripId: string, me: string = CURRENT_USER_ID): CostSummaryVM {
-  const rows = expenses.filter((e) => e.trip_id === tripId).sort((a, b) => (a.spent_on < b.spent_on ? -1 : 1));
+export function getCostSummary(tripId: string, viewer: string = me()): CostSummaryVM {
+  const rows = db().expenses.filter((e) => e.trip_id === tripId).sort((a, b) => (a.spent_on < b.spent_on ? -1 : 1));
   const currency = rows[0]?.currency ?? "AUD";
   const members = getTripMembers(tripId);
-  const splitsFor = (id: string) => expenseSplits.filter((s) => s.expense_id === id);
+  const splitsFor = (id: string) => db().expenseSplits.filter((s) => s.expense_id === id);
   const fmt = (c: number, signed = false) => formatMoney(c, currency, { signed });
 
   // Net position per person: paid − share.
@@ -72,9 +71,9 @@ export function getCostSummary(tripId: string, me: string = CURRENT_USER_ID): Co
   }
 
   const debts: PairwiseDebt[] = members
-    .filter((m) => m.id !== me)
+    .filter((m) => m.id !== viewer)
     .map((m) => {
-      const theyOweMe = (owes[m.id]?.[me] ?? 0) - (owes[me]?.[m.id] ?? 0);
+      const theyOweMe = (owes[m.id]?.[viewer] ?? 0) - (owes[viewer]?.[m.id] ?? 0);
       return {
         personId: m.id,
         name: m.short_name,
@@ -89,7 +88,7 @@ export function getCostSummary(tripId: string, me: string = CURRENT_USER_ID): Co
   const join = (names: string[]) => (names.length <= 1 ? names[0] ?? "" : `${names.slice(0, -1).join(", ")} & ${names.at(-1)}`);
 
   const total = rows.reduce((s, e) => s + e.amount_cents, 0);
-  const myShare = rows.reduce((s, e) => s + (splitsFor(e.id).find((x) => x.user_id === me)?.amount_cents ?? 0), 0);
+  const myShare = rows.reduce((s, e) => s + (splitsFor(e.id).find((x) => x.user_id === viewer)?.amount_cents ?? 0), 0);
   const maxAbs = Math.max(1, ...Object.values(net).map(Math.abs));
 
   const byCat = new Map<ExpenseCategory, number>();
@@ -100,19 +99,19 @@ export function getCostSummary(tripId: string, me: string = CURRENT_USER_ID): Co
     expenses: rows.map((e) => {
       const payer = getUser(e.paid_by);
       const splits = splitsFor(e.id);
-      const mine = splits.find((s) => s.user_id === me);
+      const mine = splits.find((s) => s.user_id === viewer);
       const equal = splits.every((s) => s.amount_cents === splits[0]?.amount_cents);
       return {
         id: e.id,
         description: e.description,
         category: e.category,
         date: formatDayMonth(e.spent_on),
-        payer: { id: payer.id, name: payer.id === me ? "You" : payer.short_name, initials: payer.initials, tone: payer.id === me ? "var(--color-accent-bright)" : payer.tone },
+        payer: { id: payer.id, name: payer.id === viewer ? "You" : payer.short_name, initials: payer.initials, tone: payer.id === viewer ? "var(--color-accent-bright)" : payer.tone },
         splitLabel: equal ? `Equally, ${splits.length} ways` : `Custom, ${splits.length} people`,
         total: fmt(e.amount_cents),
         yourShare: mine ? fmt(mine.amount_cents) : "–",
-        paidByMe: e.paid_by === me,
-        involvesMe: !!mine || e.paid_by === me,
+        paidByMe: e.paid_by === viewer,
+        involvesMe: !!mine || e.paid_by === viewer,
       };
     }),
     owedToYou: owedToMe.length
@@ -126,7 +125,7 @@ export function getCostSummary(tripId: string, me: string = CURRENT_USER_ID): Co
     debts,
     balances: members.map((m) => ({
       id: m.id,
-      name: m.id === me ? "You" : m.short_name,
+      name: m.id === viewer ? "You" : m.short_name,
       net_cents: net[m.id],
       label: fmt(net[m.id], true),
       pct: Math.round((Math.abs(net[m.id]) / maxAbs) * 100),

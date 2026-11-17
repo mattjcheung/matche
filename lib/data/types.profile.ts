@@ -14,7 +14,7 @@ export interface ProfileFact {
 
 export interface UserProfile {
   user_id: ID;
-  /** Without the "@", e.g. "alexwanders". */
+  /** Without the "@", e.g. "matthewcheung". */
   handle: string;
   /** Large hero avatar background. */
   hero_tone: Tone;

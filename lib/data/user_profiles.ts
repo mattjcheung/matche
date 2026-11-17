@@ -2,8 +2,8 @@ import type { UserProfile, UserTravelStats } from "./types.profile";
 
 export const userProfiles: UserProfile[] = [
   {
-    user_id: "alex",
-    handle: "alexwanders",
+    user_id: "matthew",
+    handle: "matthewcheung",
     hero_tone: "#E0662F",
     about:
       "Weekday spreadsheets, weekend train timetables. I plan trips around what I’m going to eat, then work backwards. Always up for a dawn hike if there’s a good breakfast at the bottom.",
@@ -25,7 +25,7 @@ export const userProfiles: UserProfile[] = [
 /** Aggregates a nightly job would compute from trips, bookings and journal entries. */
 export const userTravelStats: UserTravelStats[] = [
   {
-    user_id: "alex",
+    user_id: "matthew",
     countries_visited: 12,
     continents_visited: 4,
     distance_km: 186_400,

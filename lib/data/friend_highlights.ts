@@ -7,7 +7,7 @@ const h = (
   body: string,
   brief: string,
   activity: string | null = null,
-): FriendHighlight => ({ id: `hl_${friend_id}`, viewer_id: "alex", friend_id, body, brief, activity, priority, created_at: at });
+): FriendHighlight => ({ id: `hl_${friend_id}`, viewer_id: "matthew", friend_id, body, brief, activity, priority, created_at: at });
 
 /** `friend_highlights` for the current user. */
 export const friendHighlights: FriendHighlight[] = [
@@ -31,7 +31,7 @@ const p = (
   tone: TripPrompt["tone"],
   body: string,
   cta_label: string,
-): TripPrompt => ({ id: `tp_${trip_id}`, trip_id, viewer_id: "alex", kind, body, cta_label, tone, created_at: at });
+): TripPrompt => ({ id: `tp_${trip_id}`, trip_id, viewer_id: "matthew", kind, body, cta_label, tone, created_at: at });
 
 /** `trip_prompts` – the nudge on each friend's trip card, for the current user. */
 export const tripPrompts: TripPrompt[] = [

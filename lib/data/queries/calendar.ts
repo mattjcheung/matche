@@ -1,10 +1,7 @@
 import { MONTHS_LONG, parseISODate } from "@/lib/format";
-import { bookings } from "../bookings";
-import { itineraryEvents } from "../itinerary_events";
-import { journalEntries } from "../journal_entries";
-import { tripStopPlans, tripStops } from "../trip_stops";
 import { getTripById } from "./trips";
 import { listTodos } from "./ontrip";
+import { db } from "../db";
 
 export type ChipKind = "todo" | "travel" | "plan";
 
@@ -40,12 +37,12 @@ export function getTripCalendar(tripId: string, fromMonth?: string): CalendarMon
   const trip = getTripById(tripId);
   if (!trip?.start_date || !trip.end_date) return [];
 
-  const stops = tripStops.filter((s) => s.trip_id === tripId);
-  const plans = tripStopPlans.filter((p) => p.mode === "dated" && stops.some((s) => s.id === p.stop_id));
-  const tripBookings = bookings.filter((b) => b.trip_id === tripId);
-  const events = itineraryEvents.filter((e) => e.trip_id === tripId);
+  const stops = db().tripStops.filter((s) => s.trip_id === tripId);
+  const plans = db().tripStopPlans.filter((p) => p.mode === "dated" && stops.some((s) => s.id === p.stop_id));
+  const tripBookings = db().bookings.filter((b) => b.trip_id === tripId);
+  const events = db().itineraryEvents.filter((e) => e.trip_id === tripId);
   const todos = listTodos(tripId);
-  const entryDates = new Set(journalEntries.filter((e) => e.trip_id === tripId).map((e) => e.entry_date));
+  const entryDates = new Set(db().journalEntries.filter((e) => e.trip_id === tripId).map((e) => e.entry_date));
 
   function stayFor(iso: string) {
     // Nights run from start_date up to (not including) end_date.

@@ -128,3 +128,8 @@
   gap: var(--space-3);
   align-items: center;
 }
+
+.error {
+  font-size: var(--text-13);
+  color: var(--color-accent-strong);
+}

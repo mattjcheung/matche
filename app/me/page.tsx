@@ -20,6 +20,7 @@ import { HistoryBook } from "./HistoryBook";
 import { NotesSection } from "./NotesSection";
 import { OwnerOnly, ProfileViewProvider, PublicBanner, PublicToggle } from "./ProfileView";
 import styles from "./page.module.css";
+import { loadDb } from "@/lib/data/db";
 
 export const metadata: Metadata = {
   title: "Your profile",
@@ -31,7 +32,8 @@ const CONTINENTS = 7;
 /** Tallest bar in the nights-per-year chart, px. */
 const BAR_MAX_PX = 110;
 
-export default function MePage() {
+export default async function MePage() {
+  await loadDb();
   const { user, profile, joinedYear } = getProfile();
   const stats = getTravelStats();
   const years = listNightsByYear();

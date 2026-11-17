@@ -1,7 +1,8 @@
 import { daysBetween, formatDateRange } from "@/lib/format";
-import { ACTIVE_TRIP_ID, tripMembers, trips } from "../trips";
 import type { Trip, User } from "../types";
-import { APP_TODAY, CURRENT_USER_ID, getUser } from "../users";
+import { db, me, getUser } from "../db";
+import { redirect } from "next/navigation";
+import { APP_TODAY } from "../clock";
 
 /**
  * Trip queries. Each function maps 1:1 to a future SQL query, e.g.
@@ -9,35 +10,41 @@ import { APP_TODAY, CURRENT_USER_ID, getUser } from "../users";
  * Keep them synchronous-looking but treat results as read-only.
  */
 
-export function listMyTrips(userId: string = CURRENT_USER_ID): Trip[] {
-  const mine = new Set(tripMembers.filter((m) => m.user_id === userId).map((m) => m.trip_id));
-  return trips.filter((t) => mine.has(t.id));
+export function listMyTrips(userId: string = me()): Trip[] {
+  const mine = new Set(db().tripMembers.filter((m) => m.user_id === userId).map((m) => m.trip_id));
+  return db().trips.filter((t) => mine.has(t.id));
 }
 
 export function getTripBySlug(slug: string): Trip | undefined {
-  return trips.find((t) => t.slug === slug);
+  return db().trips.find((t) => t.slug === slug);
 }
 
 export function getTripById(id: string): Trip | undefined {
-  return trips.find((t) => t.id === id);
+  return db().trips.find((t) => t.id === id);
 }
 
-/** The trip shown on Calendar / Costs / Journal / Recap. */
+/**
+ * The trip the Calendar, Costs, Journal and Recap screens show: your next
+ * dated trip, else your most recent dated one. No dated trips → start one.
+ */
 export function getActiveTrip(): Trip {
-  const t = getTripById(ACTIVE_TRIP_ID);
-  if (!t) throw new Error("Active trip missing");
+  const dated = listMyTrips().filter((t) => t.start_date && t.end_date);
+  const t =
+    dated.filter((x) => x.end_date! >= APP_TODAY).sort((a, b) => (a.start_date! < b.start_date! ? -1 : 1))[0] ??
+    dated.sort((a, b) => (a.end_date! < b.end_date! ? 1 : -1))[0];
+  if (!t) redirect("/trips/new");
   return t;
 }
 
 /** Next dated trip that hasn't started yet. */
-export function getNextTrip(userId: string = CURRENT_USER_ID): Trip | undefined {
+export function getNextTrip(userId: string = me()): Trip | undefined {
   return listMyTrips(userId)
     .filter((t) => t.start_date && t.start_date >= APP_TODAY)
     .sort((a, b) => (a.start_date! < b.start_date! ? -1 : 1))[0];
 }
 
 export function getTripMembers(tripId: string): User[] {
-  return tripMembers
+  return db().tripMembers
     .filter((m) => m.trip_id === tripId)
     .sort((a, b) => (a.role === "owner" ? -1 : b.role === "owner" ? 1 : 0))
     .map((m) => getUser(m.user_id));

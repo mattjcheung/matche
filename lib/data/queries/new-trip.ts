@@ -1,9 +1,8 @@
 import { MONTHS_SHORT, parseISODate } from "@/lib/format";
-import { destinations } from "../destinations";
-import { travelDocuments } from "../trip_essentials";
-import { companionSuggestions, TRIP_BUDGETS, TRIP_LENGTHS, TRIP_STYLES, tripIdeas } from "../trip_ideas";
 import type { TripBudget } from "../types";
-import { APP_TODAY, CURRENT_USER_ID, getUser } from "../users";
+import { db, me, getUser } from "../db";
+import { TRIP_BUDGETS, TRIP_LENGTHS, TRIP_STYLES } from "../trip_ideas";
+import { APP_TODAY } from "../clock";
 
 /**
  * Queries for the Start-a-trip wizard (`/trips/new`). Everything is returned
@@ -51,15 +50,15 @@ function nextTwelveMonths(today: string): NewTripOptions["months"] {
   });
 }
 
-export function getNewTripOptions(userId: string = CURRENT_USER_ID): NewTripOptions {
-  const passport = travelDocuments.find((d) => d.user_id === userId && d.kind === "passport");
+export function getNewTripOptions(userId: string = me()): NewTripOptions {
+  const passport = db().travelDocuments.find((d) => d.user_id === userId && d.kind === "passport");
   const homeCountry = passport?.issuing_country ?? getUser(userId).home_country;
 
-  const ideas = tripIdeas
+  const ideas = db().tripIdeas
     .filter((i) => i.user_id === userId)
     .sort((a, b) => a.position - b.position)
     .flatMap((i) => {
-      const d = destinations.find((x) => x.id === i.destination_id);
+      const d = db().destinations.find((x) => x.id === i.destination_id);
       return d ? [{ name: d.name, why: i.reason }] : [];
     });
 
@@ -68,12 +67,12 @@ export function getNewTripOptions(userId: string = CURRENT_USER_ID): NewTripOpti
   return {
     ideas,
     destinationInfo: Object.fromEntries(
-      destinations.map((d) => [d.name, { docs: d.docs, events: d.events, health: d.health, people: d.people, pack: d.packing }]),
+      db().destinations.map((d) => [d.name, { docs: d.docs, events: d.events, health: d.health, people: d.people, pack: d.packing }]),
     ),
-    domestic: destinations.filter((d) => d.country === homeCountry).map((d) => d.name),
+    domestic: db().destinations.filter((d) => d.country === homeCountry).map((d) => d.name),
     months: nextTwelveMonths(APP_TODAY),
     lengths: [...TRIP_LENGTHS],
-    friends: companionSuggestions
+    friends: db().companionSuggestions
       .filter((c) => c.user_id === userId)
       .sort((a, b) => a.position - b.position)
       .map((c) => {

@@ -4,7 +4,7 @@ export const trips: Trip[] = [
   {
     id: "trip_japan",
     slug: "japan-with-the-crew",
-    owner_id: "alex",
+    owner_id: "matthew",
     name: "Japan with the crew",
     stage: "booked",
     date_mode: "exact",
@@ -22,7 +22,7 @@ export const trips: Trip[] = [
   {
     id: "trip_tasmania",
     slug: "tasmania-road-trip",
-    owner_id: "alex",
+    owner_id: "matthew",
     name: "Tasmania road trip",
     stage: "planning",
     date_mode: "flex",
@@ -40,7 +40,7 @@ export const trips: Trip[] = [
   {
     id: "trip_patagonia",
     slug: "patagonia-trek",
-    owner_id: "alex",
+    owner_id: "matthew",
     name: "Patagonia trek",
     stage: "idea",
     date_mode: "none",
@@ -58,7 +58,7 @@ export const trips: Trip[] = [
   {
     id: "trip_iberia",
     slug: "portugal-and-spain",
-    owner_id: "alex",
+    owner_id: "matthew",
     name: "Portugal & Spain",
     stage: "idea",
     date_mode: "flex",
@@ -76,12 +76,12 @@ export const trips: Trip[] = [
 ];
 
 export const tripMembers: TripMember[] = [
-  { trip_id: "trip_japan", user_id: "alex", role: "owner", joined_at: "2026-09-02T09:00:00Z" },
+  { trip_id: "trip_japan", user_id: "matthew", role: "owner", joined_at: "2026-09-02T09:00:00Z" },
   { trip_id: "trip_japan", user_id: "sophie", role: "member", joined_at: "2026-09-02T10:00:00Z" },
   { trip_id: "trip_japan", user_id: "jordan", role: "member", joined_at: "2026-09-03T08:00:00Z" },
-  { trip_id: "trip_tasmania", user_id: "alex", role: "owner", joined_at: "2026-10-01T09:00:00Z" },
-  { trip_id: "trip_patagonia", user_id: "alex", role: "owner", joined_at: "2026-06-12T09:00:00Z" },
-  { trip_id: "trip_iberia", user_id: "alex", role: "owner", joined_at: "2026-08-20T09:00:00Z" },
+  { trip_id: "trip_tasmania", user_id: "matthew", role: "owner", joined_at: "2026-10-01T09:00:00Z" },
+  { trip_id: "trip_patagonia", user_id: "matthew", role: "owner", joined_at: "2026-06-12T09:00:00Z" },
+  { trip_id: "trip_iberia", user_id: "matthew", role: "owner", joined_at: "2026-08-20T09:00:00Z" },
 ];
 
 /** The trip the Calendar, Costs, Journal and Recap screens show by default. */

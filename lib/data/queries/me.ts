@@ -1,13 +1,8 @@
 import { daysBetween, MONTHS_SHORT, parseISODate } from "@/lib/format";
-import { pastTripMembers, pastTrips } from "../past_trips";
-import { profileNotes } from "../profile_notes";
-import { tripReviews } from "../trip_reviews";
 import type { Trip, User } from "../types";
 import type { ProfileNote, UserBadge, UserProfile, UserTravelStats, UserYearNights } from "../types.profile";
-import { userBadges } from "../user_badges";
-import { userProfiles, userTravelStats } from "../user_profiles";
-import { userYearNights } from "../user_year_nights";
-import { APP_TODAY, CURRENT_USER_ID, getUser } from "../users";
+import { db, me, getUser } from "../db";
+import { APP_TODAY } from "../clock";
 
 /**
  * Profile (`/me`) queries. Each maps to a future SQL query, e.g.
@@ -23,34 +18,34 @@ export interface MyProfile {
   joinedYear: number;
 }
 
-export function getProfile(userId: string = CURRENT_USER_ID): MyProfile {
-  const profile = userProfiles.find((p) => p.user_id === userId);
+export function getProfile(userId: string = me()): MyProfile {
+  const profile = db().userProfiles.find((p) => p.user_id === userId);
   if (!profile) throw new Error(`No profile for ${userId}`);
   return { user: getUser(userId), profile, joinedYear: Number(profile.created_at.slice(0, 4)) };
 }
 
-export function getTravelStats(userId: string = CURRENT_USER_ID): UserTravelStats {
-  const s = userTravelStats.find((r) => r.user_id === userId);
+export function getTravelStats(userId: string = me()): UserTravelStats {
+  const s = db().userTravelStats.find((r) => r.user_id === userId);
   if (!s) throw new Error(`No travel stats for ${userId}`);
   return s;
 }
 
-export function listNightsByYear(userId: string = CURRENT_USER_ID): UserYearNights[] {
-  return userYearNights.filter((r) => r.user_id === userId).sort((a, b) => a.year - b.year);
+export function listNightsByYear(userId: string = me()): UserYearNights[] {
+  return db().userYearNights.filter((r) => r.user_id === userId).sort((a, b) => a.year - b.year);
 }
 
-export function getTotalNightsAway(userId: string = CURRENT_USER_ID): number {
+export function getTotalNightsAway(userId: string = me()): number {
   return listNightsByYear(userId).reduce((sum, r) => sum + r.nights, 0);
 }
 
-export function listBadges(userId: string = CURRENT_USER_ID): UserBadge[] {
-  return userBadges.filter((b) => b.user_id === userId).sort((a, b) => (a.earned_at < b.earned_at ? -1 : 1));
+export function listBadges(userId: string = me()): UserBadge[] {
+  return db().userBadges.filter((b) => b.user_id === userId).sort((a, b) => (a.earned_at < b.earned_at ? -1 : 1));
 }
 
 /** Completed trips the user was on, oldest first. */
-export function listCompletedTrips(userId: string = CURRENT_USER_ID): Trip[] {
-  const mine = new Set(pastTripMembers.filter((m) => m.user_id === userId).map((m) => m.trip_id));
-  return pastTrips
+export function listCompletedTrips(userId: string = me()): Trip[] {
+  const mine = new Set(db().tripMembers.filter((m) => m.user_id === userId).map((m) => m.trip_id));
+  return db().trips
     .filter((t) => mine.has(t.id) && t.stage === "completed" && t.start_date && t.end_date)
     .sort((a, b) => (a.start_date! < b.start_date! ? -1 : 1));
 }
@@ -60,7 +55,7 @@ function tripNights(t: Trip): number {
 }
 
 /** The longest completed trip, e.g. for "Longest trip: 18 days in Vietnam". */
-export function getLongestTrip(userId: string = CURRENT_USER_ID): { trip: Trip; days: number } | undefined {
+export function getLongestTrip(userId: string = me()): { trip: Trip; days: number } | undefined {
   const sorted = listCompletedTrips(userId)
     .map((trip) => ({ trip, days: tripNights(trip) }))
     .sort((a, b) => b.days - a.days);
@@ -91,13 +86,13 @@ export interface HistoryChapter {
   photoTones: string[];
 }
 
-export function listHistoryChapters(userId: string = CURRENT_USER_ID): HistoryChapter[] {
+export function listHistoryChapters(userId: string = me()): HistoryChapter[] {
   return listCompletedTrips(userId).flatMap((trip) => {
-    const review = tripReviews.find((r) => r.trip_id === trip.id && r.user_id === userId);
+    const review = db().tripReviews.find((r) => r.trip_id === trip.id && r.user_id === userId);
     if (!review) return [];
     const start = parseISODate(trip.start_date!);
     const nights = tripNights(trip);
-    const companions = pastTripMembers
+    const companions = db().tripMembers
       .filter((m) => m.trip_id === trip.id && m.user_id !== userId)
       .sort((a, b) => (a.joined_at < b.joined_at ? -1 : 1))
       .map((m) => getUser(m.user_id).short_name);
@@ -137,13 +132,13 @@ export interface ProfileNoteView {
 }
 
 function noteYear(n: ProfileNote): string | null {
-  const trip = n.trip_id ? pastTrips.find((t) => t.id === n.trip_id) : undefined;
+  const trip = n.trip_id ? db().trips.find((t) => t.id === n.trip_id) : undefined;
   return trip?.start_date ? trip.start_date.slice(0, 4) : null;
 }
 
 /** Approved notes on a profile, oldest trip first. */
-export function listProfileNotes(userId: string = CURRENT_USER_ID): ProfileNoteView[] {
-  return profileNotes
+export function listProfileNotes(userId: string = me()): ProfileNoteView[] {
+  return db().profileNotes
     .filter((n) => n.profile_user_id === userId && n.status === "approved")
     .sort((a, b) => (a.created_at < b.created_at ? -1 : 1))
     .map((n) => {
@@ -170,8 +165,8 @@ export interface PendingNoteView {
 }
 
 /** Notes waiting for the profile owner's approval, newest first. */
-export function listPendingNotes(userId: string = CURRENT_USER_ID): PendingNoteView[] {
-  return profileNotes
+export function listPendingNotes(userId: string = me()): PendingNoteView[] {
+  return db().profileNotes
     .filter((n) => n.profile_user_id === userId && n.status === "pending")
     .sort((a, b) => (a.created_at < b.created_at ? 1 : -1))
     .map((n) => ({ id: n.id, authorName: n.author_name, metAt: n.met_at.split(",")[0] }));

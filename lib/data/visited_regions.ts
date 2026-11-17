@@ -12,9 +12,9 @@ const v = (user_id: string, region: string, visit_count = 1): VisitedRegion => (
 });
 
 export const visitedRegions: VisitedRegion[] = [
-  // Alex
-  v("alex", "New Zealand", 2), v("alex", "Vietnam"), v("alex", "Bali"), v("alex", "Singapore"),
-  v("alex", "Fiji"), v("alex", "South Korea"), v("alex", "Sri Lanka"),
+  // Matthew
+  v("matthew", "New Zealand", 2), v("matthew", "Vietnam"), v("matthew", "Bali"), v("matthew", "Singapore"),
+  v("matthew", "Fiji"), v("matthew", "South Korea"), v("matthew", "Sri Lanka"),
   // Sophie
   v("sophie", "Vietnam"), v("sophie", "New Zealand"), v("sophie", "Singapore"), v("sophie", "Bali"),
   v("sophie", "Fiji"), v("sophie", "Portugal", 2), v("sophie", "Spain"), v("sophie", "Tasmania"),

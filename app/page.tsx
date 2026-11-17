@@ -30,8 +30,10 @@ import {
 } from "@/lib/data/queries/home";
 import { Feed } from "./_home/Feed";
 import styles from "./_home/home.module.css";
+import { loadDb } from "@/lib/data/db";
 
-export default function HomePage() {
+export default async function HomePage() {
+  await loadDb();
   const me = getCurrentUserVM();
   const next = getNextTripSummary();
   const trips = listTripCards();

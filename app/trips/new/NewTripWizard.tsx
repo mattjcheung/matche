@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { Avatar, Button, ButtonLink, ChipToggle, Eyebrow, Segmented } from "@/components";
+import { useState, useTransition } from "react";
+import { createTrip } from "@/lib/actions";
+import { Avatar, Button, ChipToggle, Eyebrow, Segmented } from "@/components";
 import { cx } from "@/lib/cx";
 import type { NewTripOptions } from "@/lib/data/queries/new-trip";
 import type { TripBudget } from "@/lib/data/types";
@@ -67,6 +68,27 @@ export function NewTripWizard({ options }: { options: NewTripOptions }) {
     dests.length === 0
       ? "Your trip"
       : placeList + (friends.length ? ` with ${friends.length === 1 ? friendNames[0] : "friends"}` : "");
+
+  const [creating, startCreate] = useTransition();
+  const [createError, setCreateError] = useState<string | null>(null);
+  function create() {
+    setCreateError(null);
+    startCreate(async () => {
+      const res = await createTrip({
+        places: dests,
+        dateMode,
+        start: start || null,
+        end: end || null,
+        whenLabel: when,
+        friendIds: friends,
+        styles: tripStyles,
+        budget,
+        name: tripName,
+      });
+      // On success the action redirects to the new trip.
+      if (res && !res.ok) setCreateError(res.error);
+    });
+  }
 
   const passportWarn = options.passport !== null && dests.some((d) => !options.domestic.includes(d));
   const packs = dests.map((d) => options.destinationInfo[d]?.pack).filter(Boolean);
@@ -350,8 +372,8 @@ export function NewTripWizard({ options }: { options: NewTripOptions }) {
                 Back
               </Button>
             )}
-            <p className={cx(styles.hint, !canNext && styles.hintError)} aria-live="polite">
-              {hint}
+            <p className={cx(styles.hint, (!canNext || createError) && styles.hintError)} aria-live="polite">
+              {createError ?? hint}
             </p>
             {step < 4 && (
               <Button
@@ -366,9 +388,9 @@ export function NewTripWizard({ options }: { options: NewTripOptions }) {
               </Button>
             )}
             {step === 4 && (
-              <ButtonLink href="/trips" size="lg" className={styles.nextBtn}>
-                Create trip
-              </ButtonLink>
+              <Button size="lg" className={styles.nextBtn} disabled={creating} aria-busy={creating} onClick={create}>
+                {creating ? "Creating…" : "Create trip"}
+              </Button>
             )}
           </div>
         </section>

@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { ClerkProvider } from "@clerk/nextjs";
 import { Bricolage_Grotesque, Inter } from "next/font/google";
 import "./globals.css";
 
@@ -31,8 +32,20 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${inter.variable} ${bricolage.variable}`}>
-      <body>{children}</body>
-    </html>
+    <ClerkProvider
+      signInUrl="/sign-in"
+      signUpUrl="/sign-up"
+      appearance={{
+        variables: {
+          colorPrimary: "#0B5F5B",
+          fontFamily: "var(--font-body)",
+          borderRadius: "12px",
+        },
+      }}
+    >
+      <html lang="en" className={`${inter.variable} ${bricolage.variable}`}>
+        <body>{children}</body>
+      </html>
+    </ClerkProvider>
   );
 }

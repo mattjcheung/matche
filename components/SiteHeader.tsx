@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cx } from "@/lib/cx";
-import { Avatar } from "./Avatar";
+import { UserButton } from "@clerk/nextjs";
 import { Icon, LogoMark } from "./Icon";
 import styles from "./SiteHeader.module.css";
 
@@ -55,14 +55,13 @@ export function SiteHeader({ notifications }: SiteHeaderProps) {
               {notifications > 0 && <span className={styles.dot} />}
             </button>
           )}
-          <Link
-            href="/me"
-            aria-label="Your profile"
-            aria-current={pathname.startsWith("/me") ? "page" : undefined}
-            className={cx(styles.me, pathname.startsWith("/me") && styles.meActive)}
-          >
-            <Avatar initials="AK" tone="var(--color-primary)" fg="var(--color-on-dark)" size={44} />
-          </Link>
+          <span className={cx(styles.me, pathname.startsWith("/me") && styles.meActive)}>
+            <UserButton appearance={{ elements: { avatarBox: { width: 44, height: 44 } } }}>
+              <UserButton.MenuItems>
+                <UserButton.Link label="Your profile" href="/me" labelIcon={<Icon name="user" size={16} />} />
+              </UserButton.MenuItems>
+            </UserButton>
+          </span>
         </div>
       </div>
     </header>

@@ -1,15 +1,8 @@
 import { daysBetween, formatMoney, MONTHS_SHORT, parseISODate } from "@/lib/format";
-import { bookings } from "../bookings";
-import { destinationCosts, destinationNotes, destinations, destinationStats, userDestinationLinks } from "../destinations";
-import { expenses, expenseSplits } from "../expenses";
-import { experiences, tripExperienceSuggestions } from "../experiences";
-import { packingItems, travelDocuments, tripChecklistItems, tripOverlaps } from "../trip_essentials";
-import { tripGuides, tripStopPlans, tripStops } from "../trip_stops";
-import { trips } from "../trips";
 import type { ISODate, Trip, TripBudget } from "../types";
 import type { ChecklistStatus, Destination, ExperienceSignal, TripStopStatus } from "../types.trip";
-import { CURRENT_USER_ID, getUser } from "../users";
 import { daysUntilTrip, getTripMembers, STAGE_LABEL, tripDatesLabel } from "./trips";
+import { db, me, getUser } from "../db";
 
 /**
  * Queries for the trip planner screen (`/trips/[slug]`). Each returns plain,
@@ -22,13 +15,13 @@ import { daysUntilTrip, getTripMembers, STAGE_LABEL, tripDatesLabel } from "./tr
 
 /** All trip slugs, for `generateStaticParams`. */
 export function listTripSlugs(): string[] {
-  return trips.map((t) => t.slug);
+  return db().trips.map((t) => t.slug);
 }
 
 export interface TripHeaderVM {
   eyebrow: string;
   name: string;
-  /** "29 Mar – 14 Apr 2027 · 16 nights · Alex, Sophie, Jordan" */
+  /** "29 Mar – 14 Apr 2027 · 16 nights · Matthew, Sophie, Jordan" */
   meta: string;
 }
 
@@ -47,7 +40,7 @@ export function getTripHeader(trip: Trip): TripHeaderVM {
 
 /** The destination record behind a trip (by country), if any. */
 function getTripDestination(trip: Trip): Destination | undefined {
-  return trip.country ? destinations.find((d) => d.country === trip.country) : undefined;
+  return trip.country ? db().destinations.find((d) => d.country === trip.country) : undefined;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -102,12 +95,12 @@ function stayLabel(start: ISODate, end: ISODate): string {
 }
 
 export function getTripItinerary(tripId: string): ItineraryVM {
-  const stops = tripStops.filter((s) => s.trip_id === tripId).sort((a, b) => a.position - b.position);
+  const stops = db().tripStops.filter((s) => s.trip_id === tripId).sort((a, b) => a.position - b.position);
   const overnight = stops.filter((s) => s.kind === "overnight");
 
   const plansFor = (mode: "dated" | "flexible"): StopVM[] =>
     overnight.flatMap((stop, i) => {
-      const plan = tripStopPlans.find((p) => p.stop_id === stop.id && p.mode === mode);
+      const plan = db().tripStopPlans.find((p) => p.stop_id === stop.id && p.mode === mode);
       if (!plan) return [];
       const when = plan.start_date && plan.end_date ? stayLabel(plan.start_date, plan.end_date) : plan.nights_label ?? "";
       const st = STOP_STATUS[plan.status];
@@ -133,7 +126,7 @@ export function getTripItinerary(tripId: string): ItineraryVM {
       })
       .join(", ");
 
-  const guide = tripGuides.find((g) => g.trip_id === tripId);
+  const guide = db().tripGuides.find((g) => g.trip_id === tripId);
   return {
     guide: guide ? { title: guide.route_title, body: guide.route_body } : null,
     map: {
@@ -171,7 +164,7 @@ export interface BookingRowVM {
 }
 
 export function listTripBookings(tripId: string): BookingRowVM[] {
-  return bookings
+  return db().bookings
     .filter((b) => b.trip_id === tripId)
     .sort((a, b) => (a.starts_on < b.starts_on ? -1 : a.starts_on > b.starts_on ? 1 : 0))
     .map((b) => ({
@@ -214,11 +207,11 @@ function signalLabel(signal: ExperienceSignal, userId: string | null, count: num
 }
 
 export function listTripExperiences(tripId: string): ExperienceVM[] {
-  return tripExperienceSuggestions
+  return db().tripExperienceSuggestions
     .filter((s) => s.trip_id === tripId)
     .sort((a, b) => a.position - b.position)
     .flatMap((s) => {
-      const e = experiences.find((x) => x.id === s.experience_id);
+      const e = db().experiences.find((x) => x.id === s.experience_id);
       if (!e) return [];
       return [
         {
@@ -257,17 +250,17 @@ export interface EssentialsVM {
   overlaps: Array<{ id: string; lead: string; rest: string }>;
 }
 
-export function getTripEssentials(trip: Trip, userId: string = CURRENT_USER_ID): EssentialsVM {
+export function getTripEssentials(trip: Trip, userId: string = me()): EssentialsVM {
   const dest = getTripDestination(trip);
-  const passport = travelDocuments.find((d) => d.user_id === userId && d.kind === "passport");
+  const passport = db().travelDocuments.find((d) => d.user_id === userId && d.kind === "passport");
   const notes = (category: "events" | "health"): NoteVM[] =>
-    destinationNotes
+    db().destinationNotes
       .filter((n) => n.destination_id === dest?.id && n.category === category)
       .sort((a, b) => a.position - b.position)
       .map((n) => ({ id: n.id, title: n.title, body: n.body }));
 
   const myTier: TripBudget = trip.budget ?? "Mid-range";
-  const costs = destinationCosts
+  const costs = db().destinationCosts
     .filter((c) => c.destination_id === dest?.id)
     .map((c) => ({
       tier: c.tier,
@@ -279,19 +272,19 @@ export function getTripEssentials(trip: Trip, userId: string = CURRENT_USER_ID):
   return {
     passportCountry: passport?.issuing_country ?? null,
     destinationName: dest?.name ?? null,
-    documents: tripChecklistItems
+    documents: db().tripChecklistItems
       .filter((c) => c.trip_id === trip.id && c.user_id === userId && c.category === "documents")
       .sort((a, b) => a.position - b.position)
       .map((c) => ({ id: c.id, title: c.title, body: c.body, status: c.status })),
     costs,
     events: notes("events"),
     health: notes("health"),
-    stats: destinationStats
+    stats: db().destinationStats
       .filter((s) => s.destination_id === dest?.id)
       .sort((a, b) => a.position - b.position)
       .map((s) => ({ id: s.id, label: s.label, value: s.value_label, pct: s.score_pct })),
-    statsSource: `From ${dest?.spring_trip_count ?? "[N]"} Matche trips in spring`,
-    overlaps: tripOverlaps
+    statsSource: `From ${dest?.spring_trip_count ?? "[N]"} Matche db().trips in spring`,
+    overlaps: db().tripOverlaps
       .filter((o) => o.trip_id === trip.id)
       .map((o) =>
         o.user_id
@@ -316,7 +309,7 @@ export interface AskFriendVM {
 
 export function getAskFriends(trip: Trip): { destinationName: string; friends: AskFriendVM[]; lockedCount: number } {
   const dest = getTripDestination(trip);
-  const friends = userDestinationLinks
+  const friends = db().userDestinationLinks
     .filter((l) => l.destination_id === dest?.id)
     .map((l) => {
       const u = getUser(l.user_id);
@@ -334,8 +327,8 @@ export function getPackingList(tripId: string): {
   items: Array<{ id: string; label: string; reason: string; packed: boolean }>;
 } {
   return {
-    context: tripGuides.find((g) => g.trip_id === tripId)?.packing_context ?? "",
-    items: packingItems
+    context: db().tripGuides.find((g) => g.trip_id === tripId)?.packing_context ?? "",
+    items: db().packingItems
       .filter((p) => p.trip_id === tripId)
       .sort((a, b) => a.position - b.position)
       .map((p) => ({ id: p.id, label: p.label, reason: p.reason, packed: p.is_packed })),
@@ -350,10 +343,10 @@ export function getPackingList(tripId: string): {
  * Pairwise balances for the current user on a trip: for every expense, each
  * non-payer owes the payer their split; balances are then netted per person.
  */
-export function getTripCostSummary(tripId: string, userId: string = CURRENT_USER_ID): { headline: string; detail: string } {
+export function getTripCostSummary(tripId: string, userId: string = me()): { headline: string; detail: string } {
   const net = new Map<string, number>(); // >0: they owe me; <0: I owe them
-  for (const e of expenses.filter((x) => x.trip_id === tripId)) {
-    for (const s of expenseSplits.filter((x) => x.expense_id === e.id)) {
+  for (const e of db().expenses.filter((x) => x.trip_id === tripId)) {
+    for (const s of db().expenseSplits.filter((x) => x.expense_id === e.id)) {
       if (s.user_id === e.paid_by) continue;
       if (e.paid_by === userId) net.set(s.user_id, (net.get(s.user_id) ?? 0) + s.amount_cents);
       else if (s.user_id === userId) net.set(e.paid_by, (net.get(e.paid_by) ?? 0) - s.amount_cents);

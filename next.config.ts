@@ -1,9 +1,9 @@
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
-  /* config options here */
-  cacheComponents: true,
-  partialPrefetching: true,
-};
+/**
+ * Pages render per request: every screen reads the signed-in user's data from
+ * Supabase (row-level security), so nothing is prerendered at build time.
+ */
+const nextConfig: NextConfig = {};
 
 export default nextConfig;

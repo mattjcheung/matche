@@ -1,11 +1,6 @@
 import { MONTHS_LONG, MONTHS_SHORT, parseISODate } from "@/lib/format";
-import { friendships } from "../friendships";
-import { friendJournalEntries } from "../journal_entries_friends";
-import { travelGroups } from "../travel_groups";
 import type { ISODate, Trip } from "../types";
 import type { FriendJournalEntry } from "../types.social";
-import { CURRENT_USER_ID, getUser, usersById } from "../users";
-import { travelSummaries, visitedRegions } from "../visited_regions";
 import {
   daysSinceReturn,
   getCurrentTrip,
@@ -22,6 +17,7 @@ import {
   tripRegions,
 } from "./friends";
 import { getNextTrip } from "./trips";
+import { db, me, getUser, findUser } from "../db";
 
 /**
  * Friend profile queries (`/friends/[id]`). Built for any friend; friends with
@@ -29,13 +25,13 @@ import { getNextTrip } from "./trips";
  */
 
 /** Ids for `generateStaticParams`. */
-export function listFriendProfileIds(viewerId: string = CURRENT_USER_ID): string[] {
+export function listFriendProfileIds(viewerId: string = me()): string[] {
   return listFriendIds(viewerId);
 }
 
 /** Regions a user has been to: `visited_regions` plus finished trips. */
 function visitedBy(userId: string): string[] {
-  const listed = visitedRegions.filter((v) => v.user_id === userId).map((v) => v.region);
+  const listed = db().visitedRegions.filter((v) => v.user_id === userId).map((v) => v.region);
   const fromTrips = listTripsForUser(userId)
     .filter((t) => daysSinceReturn(t) !== null)
     .flatMap(tripRegions);
@@ -107,7 +103,7 @@ function entryView(e: FriendJournalEntry): ProfileJournalEntry {
 }
 
 function publicEntries(authorId: string, tripId: string): ProfileJournalEntry[] {
-  return friendJournalEntries
+  return db().friendJournalEntries
     .filter((e) => e.author_id === authorId && e.trip_id === tripId && e.visibility === "public")
     .sort((a, b) => b.day_number - a.day_number)
     .map(entryView);
@@ -118,8 +114,8 @@ function monthYear(d: ISODate): string {
   return `${MONTHS_LONG[dt.getUTCMonth()]} ${dt.getUTCFullYear()}`;
 }
 
-export function getFriendProfile(friendId: string, viewerId: string = CURRENT_USER_ID): FriendProfile | null {
-  if (!usersById[friendId] || !isFriend(friendId, viewerId)) return null;
+export function getFriendProfile(friendId: string, viewerId: string = me()): FriendProfile | null {
+  if (!findUser(friendId) || !isFriend(friendId, viewerId)) return null;
   const u = getUser(friendId);
   const current = getCurrentTrip(friendId);
 
@@ -150,7 +146,7 @@ export function getFriendProfile(friendId: string, viewerId: string = CURRENT_US
   }
 
   // ---- stats ----
-  const summary = travelSummaries.find((s) => s.user_id === friendId);
+  const summary = db().travelSummaries.find((s) => s.user_id === friendId);
   const placesInCommon = bothBeen.length + beenWherePlanning.length + bothPlanning.length;
   const stats: ProfileStat[] = [
     { value: String(summary?.countries_visited ?? friendVisited.length), label: "countries visited", highlight: false },
@@ -189,7 +185,7 @@ export function getFriendProfile(friendId: string, viewerId: string = CURRENT_US
         };
   }
 
-  const since = friendships.find((f) => f.user_id === viewerId && f.friend_id === friendId)?.created_at;
+  const since = db().friendships.find((f) => f.user_id === viewerId && f.friend_id === friendId)?.created_at;
   const where = current?.location ? `currently in ${current.location.name}` : `at home in ${u.home_city}`;
 
   return {
@@ -227,7 +223,7 @@ export interface WorldFriend {
 
 /** Friends with something happening, most relevant first. */
 export function getFriendsAroundTheWorld(
-  viewerId: string = CURRENT_USER_ID,
+  viewerId: string = me(),
   opts: { exclude?: string; limit?: number } = {},
 ): WorldFriend[] {
   const friends = new Set(listFriendIds(viewerId));
@@ -279,11 +275,11 @@ function shortDayRange(start: ISODate, end: ISODate): string {
   return `${s.getUTCDate()} ${sm} – ${e.getUTCDate()} ${MONTHS_SHORT[e.getUTCMonth()]}`;
 }
 
-export function getTravelGroupsForNextTrip(viewerId: string = CURRENT_USER_ID, limit = 3): TravelGroupView[] {
+export function getTravelGroupsForNextTrip(viewerId: string = me(), limit = 3): TravelGroupView[] {
   const next = getNextTrip(viewerId);
   if (!next || !next.start_date || !next.end_date) return [];
   const { start_date, end_date } = next;
-  return travelGroups
+  return db().travelGroups
     .filter((g) => next.places.includes(g.place) && g.starts_on <= end_date && g.ends_on >= start_date)
     .sort((a, b) => b.member_count - a.member_count)
     .slice(0, limit)

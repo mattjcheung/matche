@@ -6,10 +6,12 @@ import { getActiveTrip } from "@/lib/data/queries/trips";
 import { cx } from "@/lib/cx";
 import { MonthGrid } from "./MonthGrid";
 import styles from "./page.module.css";
+import { loadDb } from "@/lib/data/db";
 
 export const metadata: Metadata = { title: "Calendar" };
 
-export default function CalendarPage() {
+export default async function CalendarPage() {
+  await loadDb();
   const trip = getActiveTrip();
   const months = getTripCalendar(trip.id);
   const todos = listTodoVMs(trip.id);

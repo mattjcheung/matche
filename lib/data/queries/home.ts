@@ -1,10 +1,7 @@
-import { bookings } from "../bookings";
-import { featuredRecaps, friendActivity, stories, travellerOverlaps } from "../discover";
-import { postComments, posts } from "../posts";
 import type { Post, PostKind, PostMedia, Trip } from "../types";
-import { CURRENT_USER_ID, getUser } from "../users";
 import { getNextTrip, getTripMembers, listMyTrips, daysUntilTrip, tripDatesLabel, STAGE_LABEL, STAGE_TONE } from "./trips";
 import { countTodosDueSoon } from "./ontrip";
+import { db, me, getUser } from "../db";
 
 /* ------------------------------------------------------------------------ */
 /* View models – plain serialisable objects handed to client components.     */
@@ -67,10 +64,12 @@ function postContext(p: Post): string {
 
 export function listFeed(): FeedPostVM[] {
   // Curated order for now; becomes a ranked query once the feed is live.
-  return posts.map((p) => ({
+  return [...db().posts]
+    .sort((a, b) => (a.created_at < b.created_at ? 1 : -1))
+    .map((p) => ({
       id: p.id,
       kind: p.kind,
-      author: person(p.author_id),
+      author: p.author_id === me() ? { ...person(p.author_id), name: "You" } : person(p.author_id),
       context: postContext(p),
       time: relativeTime(p.created_at),
       body: p.body,
@@ -79,7 +78,7 @@ export function listFeed(): FeedPostVM[] {
       review: p.review_title ? { title: p.review_title, meta: p.review_meta ?? "", moreCount: p.review_more_count } : null,
       likes: p.like_count,
       replies: p.reply_count,
-      comments: postComments
+      comments: db().postComments
         .filter((c) => c.post_id === p.id)
         .map((c) => ({ id: c.id, who: getUser(c.author_id).short_name, body: c.body })),
       canSave: p.kind === "review",
@@ -87,7 +86,7 @@ export function listFeed(): FeedPostVM[] {
 }
 
 export function getCurrentUserVM(): PersonVM {
-  return person(CURRENT_USER_ID);
+  return person(me());
 }
 
 export interface NextTripVM {
@@ -107,7 +106,7 @@ export interface NextTripVM {
 export function getNextTripSummary(): NextTripVM | null {
   const t = getNextTrip();
   if (!t) return null;
-  const tb = bookings.filter((b) => b.trip_id === t.id);
+  const tb = db().bookings.filter((b) => b.trip_id === t.id);
   const flights = tb.filter((b) => b.kind === "flight").length;
   const stays = tb.filter((b) => b.kind === "stay").length;
   return {
@@ -116,7 +115,7 @@ export function getNextTripSummary(): NextTripVM | null {
     daysAway: daysUntilTrip(t),
     dates: tripDatesLabel(t),
     route: t.places.join(" → "),
-    members: getTripMembers(t.id).map((u) => ({ ...person(u.id), fg: undefined, tone: u.id === CURRENT_USER_ID ? "var(--color-accent-bright)" : u.tone })),
+    members: getTripMembers(t.id).map((u) => ({ ...person(u.id), fg: undefined, tone: u.id === me() ? "var(--color-accent-bright)" : u.tone })),
     flightsBooked: flights,
     staysBooked: stays,
     staysPlanned: t.places.length,
@@ -150,18 +149,18 @@ export function listTripCards(): TripCardVM[] {
 }
 
 export function listFriendsRightNow() {
-  return friendActivity.map((a) => ({ id: a.id, person: person(a.user_id), action: a.action, meta: a.meta }));
+  return db().friendActivity.map((a) => ({ id: a.id, person: person(a.user_id), action: a.action, meta: a.meta }));
 }
 
 export function getTravellerOverlap() {
   const next = getNextTrip();
-  return travellerOverlaps.find((o) => o.trip_id === next?.id) ?? null;
+  return db().travellerOverlaps.find((o) => o.trip_id === next?.id) ?? null;
 }
 
 const compact = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(1).replace(/\.0$/, "")}k` : String(n));
 
 export function listFeaturedRecaps() {
-  return featuredRecaps.map((r) => {
+  return db().featuredRecaps.map((r) => {
     const a = getUser(r.author_id);
     const who = a.name.includes("&") ? a.name : `${a.short_name} ${a.name.split(" ")[1]?.[0] ?? ""}.`;
     return { id: r.id, title: r.title, who, meta: `${r.country} · ${compact(r.save_count)} saves`, duration: r.duration_label, tone: r.cover_tone };
@@ -169,7 +168,7 @@ export function listFeaturedRecaps() {
 }
 
 export function listStories() {
-  return stories.map((s) => {
+  return db().stories.map((s) => {
     const a = getUser(s.author_id);
     return {
       id: s.id,

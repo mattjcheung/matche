@@ -1,11 +1,12 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useState, useTransition } from "react";
 import { Avatar, Button, Card, ChipToggle, Display, Icon, IconButton, MediaPlaceholder, Muted, PlayDisc, Segmented, Tag } from "@/components";
 import type { TagTone } from "@/components/Chip";
 import type { FeedPostVM, PersonVM } from "@/lib/data/queries/home";
 import type { PostKind } from "@/lib/data/types";
 import { cx } from "@/lib/cx";
+import { createPost } from "@/lib/actions";
 import styles from "./Feed.module.css";
 
 type Filter = "all" | "live" | "review" | "question";
@@ -29,34 +30,24 @@ export function Feed({ me, initialPosts }: { me: PersonVM; initialPosts: FeedPos
   const [filter, setFilter] = useState<Filter>("all");
   const [kind, setKind] = useState<ComposeKind>("update");
   const [draft, setDraft] = useState("");
-  const [mine, setMine] = useState<FeedPostVM[]>([]);
+  const [pending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
   const composeId = useId();
 
-  const all = [...mine, ...initialPosts];
-  const visible = all.filter((p) => filter === "all" || p.kind === filter);
+  const visible = initialPosts.filter((p) => filter === "all" || p.kind === filter);
 
   function post() {
-    const text = draft.trim();
-    if (!text) return;
-    // TODO(data): replace with an insert into `posts` once the backend exists.
-    const p: FeedPostVM = {
-      id: `local-${Date.now()}`,
-      kind,
-      author: { ...me, name: "You" },
-      context: kind === "question" ? "· asking the community" : "· not on a trip",
-      time: "Just now",
-      body: text,
-      emphasis: "normal",
-      media: [],
-      review: null,
-      likes: 0,
-      replies: 0,
-      comments: [],
-      canSave: false,
-    };
-    setMine((m) => [p, ...m]);
-    setDraft("");
-    setFilter("all");
+    if (!draft.trim() || pending) return;
+    setError(null);
+    startTransition(async () => {
+      const res = await createPost({ kind, body: draft });
+      if (!res.ok) {
+        setError(res.error);
+        return;
+      }
+      setDraft("");
+      setFilter("all");
+    });
   }
 
   return (
@@ -93,10 +84,15 @@ export function Feed({ me, initialPosts }: { me: PersonVM; initialPosts: FeedPos
               <IconButton aria-label="Add video">
                 <Icon name="video" />
               </IconButton>
-              <Button onClick={post} className={styles.postButton}>
-                Post
+              <Button onClick={post} className={styles.postButton} disabled={pending} aria-busy={pending}>
+                {pending ? "Posting…" : "Post"}
               </Button>
             </div>
+            {error && (
+              <p role="alert" className={styles.error}>
+                {error}
+              </p>
+            )}
             <Muted size={13}>
               On a trip? Posts are tagged with the day and place automatically, and when the trip ends your photos are bundled into one review post.
             </Muted>

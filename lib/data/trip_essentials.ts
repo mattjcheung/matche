@@ -1,13 +1,13 @@
 import type { PackingItem, TravelDocument, TripChecklistItem, TripOverlap } from "./types.trip";
 
 export const travelDocuments: TravelDocument[] = [
-  { id: "doc_alex_passport", user_id: "alex", kind: "passport", issuing_country: "Australia", expires_on: "2027-08-21" },
+  { id: "doc_matthew_passport", user_id: "matthew", kind: "passport", issuing_country: "Australia", expires_on: "2027-08-21" },
 ];
 
 export const tripChecklistItems: TripChecklistItem[] = [
-  { id: "tci_jp_visa", trip_id: "trip_japan", user_id: "alex", category: "documents", position: 1, status: "done", title: "No visa needed", body: "for tourist stays up to 90 days on an Australian passport." },
-  { id: "tci_jp_passport", trip_id: "trip_japan", user_id: "alex", category: "documents", position: 2, status: "warning", title: "Renew your passport.", body: "It expires Aug 2027 – inside many airlines’ and countries’ 6-month rule. Apply by 15 Jan 2027." },
-  { id: "tci_jp_vjw", trip_id: "trip_japan", user_id: "alex", category: "documents", position: 3, status: "todo", title: null, body: "Fill in Visit Japan Web for faster arrival – a week before you fly." },
+  { id: "tci_jp_visa", trip_id: "trip_japan", user_id: "matthew", category: "documents", position: 1, status: "done", title: "No visa needed", body: "for tourist stays up to 90 days on an Australian passport." },
+  { id: "tci_jp_passport", trip_id: "trip_japan", user_id: "matthew", category: "documents", position: 2, status: "warning", title: "Renew your passport.", body: "It expires Aug 2027 – inside many airlines’ and countries’ 6-month rule. Apply by 15 Jan 2027." },
+  { id: "tci_jp_vjw", trip_id: "trip_japan", user_id: "matthew", category: "documents", position: 3, status: "todo", title: null, body: "Fill in Visit Japan Web for faster arrival – a week before you fly." },
 ];
 
 export const tripOverlaps: TripOverlap[] = [

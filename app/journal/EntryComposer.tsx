@@ -1,6 +1,7 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useState, useTransition } from "react";
+import { addJournalEntry } from "@/lib/actions";
 import { Button, Card, Icon, Muted, Segmented } from "@/components";
 import type { JournalVisibility } from "@/lib/data/types.ontrip";
 import styles from "./page.module.css";
@@ -11,10 +12,22 @@ const DRAFT_MEDIA = [
   { id: "m2", tone: "#6E5432", duration: "0:12" },
 ];
 
-export function EntryComposer({ companions }: { companions: string[] }) {
+export function EntryComposer({ companions, tripId, date, place }: { companions: string[]; tripId: string; date: string; place: string }) {
   const [visibility, setVisibility] = useState<JournalVisibility>("group");
-  const [text, setText] = useState("Up at 6 for Fushimi Inari – had the top gates almost to ourselves.");
+  const [text, setText] = useState("");
   const [posted, setPosted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [saving, startSave] = useTransition();
+
+  function save() {
+    setError(null);
+    startSave(async () => {
+      const res = await addJournalEntry({ tripId, body: text, visibility, date, place });
+      if (!res.ok) return setError(res.error);
+      setPosted(true);
+      setText("");
+    });
+  }
   const id = useId();
 
   const names = companions.length > 1 ? `${companions.slice(0, -1).join(", ")} and ${companions.at(-1)}` : companions[0] ?? "Your group";
@@ -61,8 +74,13 @@ export function EntryComposer({ companions }: { companions: string[] }) {
           ? `${names} will see this. Shared entries with the most love go into your recap.`
           : "Only you can see this. You can share it later."}
       </Muted>
-      <Button size="lg" block onClick={() => setPosted(true)} disabled={!text.trim()}>
-        {posted ? "Posted" : "Post entry"}
+      {error && (
+        <p role="alert" className={styles.error}>
+          {error}
+        </p>
+      )}
+      <Button size="lg" block onClick={save} disabled={!text.trim() || saving} aria-busy={saving}>
+        {saving ? "Posting…" : posted ? "Posted" : "Post entry"}
       </Button>
     </Card>
   );

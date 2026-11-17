@@ -7,21 +7,19 @@ import {
   getFriendProfile,
   getFriendsAroundTheWorld,
   getTravelGroupsForNextTrip,
-  listFriendProfileIds,
 } from "@/lib/data/queries/profile";
 import styles from "./page.module.css";
-
-export function generateStaticParams() {
-  return listFriendProfileIds().map((id) => ({ id }));
-}
+import { loadDb } from "@/lib/data/db";
 
 export async function generateMetadata({ params }: PageProps<"/friends/[id]">): Promise<Metadata> {
+  await loadDb();
   const { id } = await params;
   const profile = getFriendProfile(id);
   return { title: profile ? `${profile.shortName}’s profile` : "Friend not found" };
 }
 
 export default async function FriendProfilePage({ params }: PageProps<"/friends/[id]">) {
+  await loadDb();
   const { id } = await params;
   const profile = getFriendProfile(id);
   if (!profile) notFound();

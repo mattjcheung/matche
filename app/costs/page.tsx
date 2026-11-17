@@ -5,13 +5,15 @@ import { getActiveTrip } from "@/lib/data/queries/trips";
 import { ExpenseTable } from "./ExpenseTable";
 import { SettleUp } from "./SettleUp";
 import styles from "./page.module.css";
+import { loadDb } from "@/lib/data/db";
 
 export const metadata: Metadata = { title: "Cost tracker" };
 
 /** Bar colours for "Where the money went", in category order. */
 const CATEGORY_COLORS = ["var(--color-primary)", "var(--color-primary-mid)", "var(--color-accent)", "var(--color-ink)", "var(--color-ink-placeholder)"];
 
-export default function CostsPage() {
+export default async function CostsPage() {
+  await loadDb();
   const trip = getActiveTrip();
   const c = getCostSummary(trip.id);
 

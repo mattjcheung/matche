@@ -1,7 +1,7 @@
 import type { User } from "./types";
 
 /** The signed-in user. Replace with the auth session once there is one. */
-export const CURRENT_USER_ID = "alex";
+export const CURRENT_USER_ID = "matthew";
 
 /**
  * Fixed "today" so mock data reads consistently (e.g. "in 140 days").
@@ -10,7 +10,7 @@ export const CURRENT_USER_ID = "alex";
 export const APP_TODAY = "2026-11-09";
 
 export const users: User[] = [
-  { id: "alex", name: "Alex Kim", short_name: "Alex", initials: "AK", tone: "#0B5F5B", tone_fg: "#FFFFFF", home_city: "Melbourne", home_country: "Australia", home_lon: 145, home_lat: -37.8 },
+  { id: "matthew", name: "Matthew Cheung", short_name: "Matthew", initials: "MC", tone: "#0B5F5B", tone_fg: "#FFFFFF", home_city: "Melbourne", home_country: "Australia", home_lon: 145, home_lat: -37.8 },
   { id: "sophie", name: "Sophie Lam", short_name: "Sophie", initials: "SL", tone: "#8FC7BF", home_city: "Melbourne", home_country: "Australia", home_lon: 145, home_lat: -37.8 },
   { id: "jordan", name: "Jordan Park", short_name: "Jordan", initials: "JP", tone: "#E9D79A", home_city: "Melbourne", home_country: "Australia", home_lon: 145, home_lat: -37.8 },
   { id: "dan", name: "Dan Moore", short_name: "Dan", initials: "DM", tone: "#E9D79A", home_city: "Melbourne", home_country: "Australia", home_lon: 145, home_lat: -37.8 },

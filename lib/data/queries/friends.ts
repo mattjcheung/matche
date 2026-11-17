@@ -1,13 +1,9 @@
 import { daysBetween, formatDate, formatDateRange, MONTHS_LONG, parseISODate } from "@/lib/format";
-import { friendHighlights, tripPrompts } from "../friend_highlights";
-import { friendTripMembers, friendTrips, tripLocations } from "../friend_trips";
-import { friendships } from "../friendships";
-import { tripMembers, trips } from "../trips";
 import type { ISODate, Trip, User } from "../types";
 import type { FriendHighlight, TripLocation, TripPromptTone } from "../types.social";
-import { APP_TODAY, CURRENT_USER_ID, getUser } from "../users";
-import { volunteerOpportunities, volunteerTripMatches } from "../volunteering";
 import { getNextTrip } from "./trips";
+import { db, me, getUser } from "../db";
+import { APP_TODAY } from "../clock";
 
 /**
  * Friends queries. Each maps to a future SQL query over `friendships`,
@@ -21,35 +17,37 @@ import { getNextTrip } from "./trips";
 // ---------------------------------------------------------------------------
 
 /** `trips` and `trip_members` as one table each. */
-export const allTrips: Trip[] = [...trips, ...friendTrips];
-const allMembers = [...tripMembers, ...friendTripMembers];
+export function allTrips(): Trip[] {
+  return db().trips;
+}
+const allMembers = () => db().tripMembers;
 
 export function profileHref(userId: string): string {
   return `/friends/${userId}`;
 }
 
 /** Accepted friends of `viewerId`, in friendship order. */
-export function listFriendIds(viewerId: string = CURRENT_USER_ID): string[] {
-  return friendships
+export function listFriendIds(viewerId: string = me()): string[] {
+  return db().friendships
     .filter((f) => f.user_id === viewerId && f.status === "accepted")
     .map((f) => f.friend_id);
 }
 
-export function isFriend(friendId: string, viewerId: string = CURRENT_USER_ID): boolean {
+export function isFriend(friendId: string, viewerId: string = me()): boolean {
   return listFriendIds(viewerId).includes(friendId);
 }
 
 export function listTripsForUser(userId: string): Trip[] {
-  const ids = new Set(allMembers.filter((m) => m.user_id === userId).map((m) => m.trip_id));
-  return allTrips.filter((t) => ids.has(t.id));
+  const ids = new Set(allMembers().filter((m) => m.user_id === userId).map((m) => m.trip_id));
+  return allTrips().filter((t) => ids.has(t.id));
 }
 
 export function isTripMember(tripId: string, userId: string): boolean {
-  return allMembers.some((m) => m.trip_id === tripId && m.user_id === userId);
+  return allMembers().some((m) => m.trip_id === tripId && m.user_id === userId);
 }
 
 export function listTripLocations(tripId: string): TripLocation[] {
-  return tripLocations.filter((l) => l.trip_id === tripId).sort((a, b) => a.position - b.position);
+  return db().tripLocations.filter((l) => l.trip_id === tripId).sort((a, b) => a.position - b.position);
 }
 
 /** Regions a trip visits, in route order, de-duplicated. */
@@ -100,12 +98,12 @@ export function travelDayLabel(c: CurrentTrip): string {
   return `Day ${c.day} of ${c.totalDays}`;
 }
 
-export function getHighlight(friendId: string, viewerId: string = CURRENT_USER_ID): FriendHighlight | undefined {
-  return friendHighlights.find((h) => h.friend_id === friendId && h.viewer_id === viewerId);
+export function getHighlight(friendId: string, viewerId: string = me()): FriendHighlight | undefined {
+  return db().friendHighlights.find((h) => h.friend_id === friendId && h.viewer_id === viewerId);
 }
 
-export function listHighlights(viewerId: string = CURRENT_USER_ID): FriendHighlight[] {
-  return friendHighlights.filter((h) => h.viewer_id === viewerId).sort((a, b) => a.priority - b.priority);
+export function listHighlights(viewerId: string = me()): FriendHighlight[] {
+  return db().friendHighlights.filter((h) => h.viewer_id === viewerId).sort((a, b) => a.priority - b.priority);
 }
 
 /** Whole days in a dated trip, inclusive. */
@@ -185,7 +183,7 @@ export interface FriendsMapData {
  * One pin per travelling friend (at their current trip location) and one pin
  * per home city for friends at home – friends sharing a home city are grouped.
  */
-export function getFriendsMap(viewerId: string = CURRENT_USER_ID): FriendsMapData {
+export function getFriendsMap(viewerId: string = me()): FriendsMapData {
   const friendIds = listFriendIds(viewerId);
   const viewerUpcomingPlaces = new Set(
     listTripsForUser(viewerId)
@@ -310,11 +308,11 @@ function columnFor(t: Trip): FriendTripColumnStage | null {
 }
 
 /** Friends' trips the viewer isn't on, grouped by stage. */
-export function getFriendTripColumns(viewerId: string = CURRENT_USER_ID): FriendTripColumn[] {
+export function getFriendTripColumns(viewerId: string = me()): FriendTripColumn[] {
   const friends = new Set(listFriendIds(viewerId));
   const columns: Record<FriendTripColumnStage, Trip[]> = { planning: [], booked: [], completed: [] };
 
-  for (const t of allTrips) {
+  for (const t of allTrips()) {
     if (!friends.has(t.owner_id) || isTripMember(t.id, viewerId)) continue;
     const col = columnFor(t);
     if (col) columns[col].push(t);
@@ -329,7 +327,7 @@ export function getFriendTripColumns(viewerId: string = CURRENT_USER_ID): Friend
     title: COLUMN_TITLE[stage],
     cards: columns[stage].map((t) => {
       const owner = getUser(t.owner_id);
-      const prompt = tripPrompts.find((p) => p.trip_id === t.id && p.viewer_id === viewerId);
+      const prompt = db().tripPrompts.find((p) => p.trip_id === t.id && p.viewer_id === viewerId);
       return {
         id: t.id,
         friendId: owner.id,
@@ -384,12 +382,12 @@ function longDayMonthRange(start: ISODate, end: ISODate): string {
 }
 
 /** Opportunities on the viewer's next trip, and places asking for help. */
-export function getVolunteering(viewerId: string = CURRENT_USER_ID): VolunteeringData {
+export function getVolunteering(viewerId: string = me()): VolunteeringData {
   const next = getNextTrip(viewerId);
-  const opp = (id: string) => volunteerOpportunities.find((o) => o.id === id);
+  const opp = (id: string) => db().volunteerOpportunities.find((o) => o.id === id);
 
   const routeCards: VolunteerCard[] = next
-    ? volunteerTripMatches
+    ? db().volunteerTripMatches
         .filter((m) => m.trip_id === next.id)
         .flatMap((m) => {
           const o = opp(m.opportunity_id);
@@ -404,7 +402,7 @@ export function getVolunteering(viewerId: string = CURRENT_USER_ID): Volunteerin
       ? `Short opportunities near your ${next.country ?? next.name} route, ${longDayMonthRange(next.start_date, next.end_date)}. Add one straight into your itinerary.`
       : "Add dates to a trip and short opportunities along your route will show up here.";
 
-  const needCards: VolunteerCard[] = volunteerOpportunities
+  const needCards: VolunteerCard[] = db().volunteerOpportunities
     .filter((o) => o.need_tag && o.need_rank !== null)
     .sort((a, b) => (a.need_rank ?? 0) - (b.need_rank ?? 0))
     .map((o) => ({

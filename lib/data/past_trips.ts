@@ -1,7 +1,7 @@
 import type { Trip, TripMember } from "./types";
 
 /**
- * Alex's completed trips, oldest first. These feed the travel history book on
+ * Matthew's completed trips, oldest first. These feed the travel history book on
  * `/me`. Same `trips` / `trip_members` tables as `trips.ts`, just stage
  * "completed".
  */
@@ -19,7 +19,7 @@ function completed(
   return {
     id,
     slug,
-    owner_id: "alex",
+    owner_id: "matthew",
     name,
     stage: "completed",
     date_mode: "exact",
@@ -48,23 +48,23 @@ export const pastTrips: Trip[] = [
 ];
 
 function member(trip_id: string, user_id: string, joined_at: string): TripMember {
-  return { trip_id, user_id, role: user_id === "alex" ? "owner" : "member", joined_at };
+  return { trip_id, user_id, role: user_id === "matthew" ? "owner" : "member", joined_at };
 }
 
 export const pastTripMembers: TripMember[] = [
-  member("trip_nz_south_2018", "alex", "2017-11-01T09:00:00Z"),
+  member("trip_nz_south_2018", "matthew", "2017-11-01T09:00:00Z"),
   member("trip_nz_south_2018", "jordan", "2017-11-02T09:00:00Z"),
-  member("trip_vietnam_2019", "alex", "2019-05-10T09:00:00Z"),
+  member("trip_vietnam_2019", "matthew", "2019-05-10T09:00:00Z"),
   member("trip_vietnam_2019", "sophie", "2019-05-11T09:00:00Z"),
-  member("trip_bali_2022", "alex", "2022-04-20T09:00:00Z"),
-  member("trip_singapore_2023", "alex", "2023-01-15T09:00:00Z"),
-  member("trip_fiji_2023", "alex", "2023-01-15T09:00:00Z"),
+  member("trip_bali_2022", "matthew", "2022-04-20T09:00:00Z"),
+  member("trip_singapore_2023", "matthew", "2023-01-15T09:00:00Z"),
+  member("trip_fiji_2023", "matthew", "2023-01-15T09:00:00Z"),
   member("trip_fiji_2023", "sophie", "2023-01-16T09:00:00Z"),
   member("trip_fiji_2023", "rosa", "2023-01-18T09:00:00Z"),
-  member("trip_korea_2024", "alex", "2024-07-01T09:00:00Z"),
+  member("trip_korea_2024", "matthew", "2024-07-01T09:00:00Z"),
   member("trip_korea_2024", "priya", "2024-07-02T09:00:00Z"),
-  member("trip_nz_north_2025", "alex", "2024-10-20T09:00:00Z"),
+  member("trip_nz_north_2025", "matthew", "2024-10-20T09:00:00Z"),
   member("trip_nz_north_2025", "jordan", "2024-10-21T09:00:00Z"),
   member("trip_nz_north_2025", "dan", "2024-10-22T09:00:00Z"),
-  member("trip_srilanka_2026", "alex", "2025-11-30T09:00:00Z"),
+  member("trip_srilanka_2026", "matthew", "2025-11-30T09:00:00Z"),
 ];

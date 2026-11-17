@@ -6,10 +6,12 @@ import { getActiveTrip } from "@/lib/data/queries/trips";
 import { cx } from "@/lib/cx";
 import { EntryComposer } from "./EntryComposer";
 import styles from "./page.module.css";
+import { loadDb } from "@/lib/data/db";
 
 export const metadata: Metadata = { title: "Trip journal" };
 
-export default function JournalPage() {
+export default async function JournalPage() {
+  await loadDb();
   const trip = getActiveTrip();
   const day = getJournalDay(trip.id);
   const entries = listGroupEntries(trip.id);
@@ -45,7 +47,7 @@ export default function JournalPage() {
 
   return (
     <MobileShell header={header}>
-      <EntryComposer companions={companions} />
+      <EntryComposer companions={companions} tripId={trip.id} date={day.iso} place={day.place} />
 
       <h2 className={styles.groupHeading}>Today from the group</h2>
       {entries.map((e) => (
