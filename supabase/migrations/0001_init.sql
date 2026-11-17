@@ -625,6 +625,11 @@ end $$;
 grant execute on function public.me(), public.is_trip_member(text), public.owns_trip(text),
   public.can_see_trip(text), public.claim_demo_account() to authenticated;
 
+-- Table access for signed-in users. Some projects don't auto-grant new
+-- tables; row-level security above still decides which rows they see.
+grant usage on schema public to authenticated;
+grant select, insert, update, delete on public.users, public.friendships, public.trips, public.trip_members, public.trip_locations, public.bookings, public.expenses, public.expense_splits, public.posts, public.post_comments, public.featured_recaps, public.stories, public.friend_activity, public.traveller_overlaps, public.todos, public.journal_entries, public.journal_media, public.trip_recaps, public.itinerary_events, public.trip_stops, public.trip_stop_plans, public.trip_guides, public.experiences, public.trip_experience_suggestions, public.destinations, public.destination_notes, public.destination_stats, public.destination_costs, public.user_destination_links, public.travel_documents, public.trip_checklist_items, public.trip_overlaps, public.packing_items, public.trip_ideas, public.companion_suggestions, public.friend_highlights, public.trip_prompts, public.friend_journal_entries, public.travel_groups, public.visited_regions, public.travel_summaries, public.volunteer_opportunities, public.volunteer_trip_matches, public.trip_reviews, public.user_badges, public.user_profiles, public.user_travel_stats, public.user_year_nights, public.profile_notes to authenticated;
+
 -- Row-level security
 alter table public.users enable row level security;
 create policy "Profiles are visible to signed-in users" on public.users for select to authenticated using (true);
