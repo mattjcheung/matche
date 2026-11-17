@@ -1,0 +1,104 @@
+.tile {
+  padding: var(--space-6);
+  border-radius: var(--radius-xl);
+  min-width: 0;
+}
+
+.summary {
+  padding: var(--space-9);
+  border-radius: var(--radius-2xl);
+}
+
+.center {
+  text-align: center;
+  padding: var(--space-5) var(--space-3);
+}
+
+.value {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  line-height: 1.15;
+}
+
+.value_sm { font-size: var(--text-22); }
+.value_md { font-size: var(--text-26); }
+.value_lg { font-size: var(--text-36); }
+
+.summary .value {
+  margin: var(--space-2) 0 0;
+}
+
+.label {
+  margin: 2px 0 0;
+  font-size: var(--text-13);
+}
+
+.summary .label {
+  margin: 0;
+  font-size: var(--text-14);
+}
+
+.center .label {
+  font-size: var(--text-sm);
+  margin: 0;
+}
+
+.note {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-13);
+}
+
+/* ---- tones ---- */
+.tone_surface {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-ink);
+}
+
+.tone_surface .label,
+.tone_surface .note {
+  color: var(--color-ink-muted);
+}
+
+.tone_primary {
+  background: var(--color-primary);
+  color: var(--color-on-dark);
+}
+
+.tone_primary .label,
+.tone_primary .note {
+  color: var(--color-primary-soft-on);
+}
+
+.tone_accent {
+  background: var(--color-accent-tint);
+  color: var(--color-accent-ink);
+}
+
+.tone_accent .label,
+.tone_accent .note {
+  color: var(--color-accent-strong);
+}
+
+.tone_onDark {
+  background: var(--color-dark-raised);
+  color: var(--color-on-dark);
+}
+
+.tone_onDark .label {
+  color: var(--color-on-dark-muted);
+}
+
+.tone_onDarkWarm {
+  background: var(--color-dark-accent);
+  color: var(--color-on-dark);
+}
+
+.tone_onDarkWarm .value {
+  color: var(--color-accent-peach);
+}
+
+.tone_onDarkWarm .label {
+  color: var(--color-accent-peach-2);
+}

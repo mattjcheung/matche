@@ -1,0 +1,50 @@
+.track {
+  display: inline-flex;
+  padding: var(--space-1);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-sunken);
+}
+
+.block {
+  display: flex;
+  width: 100%;
+}
+
+.block .segment {
+  flex: 1 1 0;
+}
+
+.segment {
+  min-height: 38px;
+  padding: 0 var(--space-5);
+  border-radius: 9px;
+  border: none;
+  background: transparent;
+  color: var(--color-ink);
+  font-size: var(--text-14);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.md {
+  min-height: var(--control-md);
+}
+
+.segment[aria-pressed="true"] {
+  background: var(--color-surface);
+}
+
+/* On dark cards */
+.dark {
+  background: var(--color-dark-raised);
+}
+
+.dark .segment {
+  color: var(--color-on-dark);
+}
+
+.dark .segment[aria-pressed="true"] {
+  background: var(--color-surface);
+  color: var(--color-ink);
+}

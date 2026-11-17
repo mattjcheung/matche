@@ -1,0 +1,237 @@
+/* ---------- Sidebar ---------- */
+.side {
+  flex: 1 1 300px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-9);
+}
+
+.sub {
+  margin-top: var(--space-1);
+}
+
+.todos {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.todo {
+  display: flex;
+  gap: var(--space-5);
+  align-items: flex-start;
+  padding: var(--space-5);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-muted);
+}
+
+.todoAuto {
+  background: var(--color-accent-tint);
+}
+
+.dateBox {
+  flex: 0 0 48px;
+  padding: var(--space-2) 0;
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.dateMon {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--color-ink-muted);
+  text-transform: uppercase;
+}
+
+.dateDay {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+}
+
+.minw0 {
+  min-width: 0;
+}
+
+.todoTitle {
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-14);
+}
+
+.todoNote {
+  margin-top: 3px;
+}
+
+.addTodo {
+  font-size: var(--text-14);
+}
+
+.keyHeading {
+  font-size: var(--text-15);
+  font-weight: var(--weight-semibold);
+}
+
+.keyRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  font-size: var(--text-14);
+}
+
+.swatch {
+  width: 28px;
+  height: 14px;
+  border-radius: var(--radius-xs);
+}
+
+.swBooked { background: var(--color-primary); }
+.swHoped { background: var(--color-primary-tint); border: 1.5px dashed var(--color-primary); }
+.swTodo { background: var(--color-accent-tint); }
+.swTravel { background: var(--color-ink); }
+
+.swJournal {
+  width: 10px;
+  height: 10px;
+  margin: 0 9px;
+  border-radius: 50%;
+  background: var(--color-accent);
+}
+
+/* ---------- Calendar ---------- */
+.main {
+  flex: 999 1 640px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+}
+
+.calHead {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.eyebrow {
+  margin-bottom: var(--space-1);
+}
+
+.monthNav {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.navButton {
+  border-color: var(--color-border-strong);
+}
+
+.gridWrap {
+  overflow-x: auto;
+  border-radius: var(--radius-3xl);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+.grid {
+  min-width: 700px;
+}
+
+.weekdays,
+.cells {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.weekdays {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.weekday {
+  padding: var(--space-5);
+  font-size: var(--text-13);
+  font-weight: var(--weight-semibold);
+  color: var(--color-ink-muted);
+}
+
+.cell {
+  min-height: 116px;
+  padding: var(--space-3);
+  border-right: 1px solid var(--color-border-soft);
+  border-bottom: 1px solid var(--color-border-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  background: var(--color-surface);
+}
+
+.cellEmpty {
+  background: var(--color-surface-empty);
+}
+
+.cellTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cellNum {
+  font-size: var(--text-14);
+  font-weight: var(--weight-semibold);
+}
+
+.journalDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-accent);
+}
+
+.stay,
+.chip {
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+}
+
+.stay {
+  font-weight: var(--weight-semibold);
+}
+
+.stayBooked {
+  background: var(--color-primary);
+  color: var(--color-on-dark);
+}
+
+.stayHoped {
+  background: var(--color-primary-tint);
+  color: var(--color-primary);
+  border: 1.5px dashed var(--color-primary);
+}
+
+.chip {
+  font-weight: var(--weight-medium);
+}
+
+.chip_todo {
+  background: var(--color-accent-tint);
+  color: var(--color-accent-strong);
+}
+
+.chip_travel {
+  background: var(--color-ink);
+  color: var(--color-on-dark);
+}
+
+.chip_plan {
+  background: var(--color-surface-subtle);
+  color: var(--color-ink);
+}

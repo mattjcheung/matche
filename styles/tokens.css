@@ -1,0 +1,151 @@
+/*
+ * Matche design tokens.
+ * Single source of truth for colour, type, spacing and radii, taken from the
+ * "Matche – All-in-one travel hub" design canvas. Use these variables in CSS
+ * Modules; never hard-code a hex value in a component.
+ */
+:root {
+  /* ---------- Colour: surfaces ---------- */
+  --color-bg: #f5f6f2;            /* page ground */
+  --color-surface: #ffffff;       /* cards, header */
+  --color-surface-muted: #f5f6f2; /* inset panels inside cards */
+  --color-surface-sunken: #e7ebe7;/* segmented-control track */
+  --color-surface-subtle: #edf0ec;/* progress track, neutral tag */
+  --color-surface-empty: #f9faf8; /* empty calendar cells */
+
+  /* ---------- Colour: ink ---------- */
+  --color-ink: #13201d;           /* primary text, dark surfaces */
+  --color-ink-2: #2f3d39;         /* body copy on light tints */
+  --color-ink-3: #3f4b47;         /* nav links, secondary labels */
+  --color-ink-muted: #4f5b57;     /* captions, meta */
+  --color-ink-faint: #6b7773;     /* disabled / future */
+  --color-ink-placeholder: #9aa6a1;
+
+  /* ---------- Colour: lines ---------- */
+  --color-border: #dde2dd;        /* card borders */
+  --color-border-strong: #c9d1cc; /* inputs, secondary buttons */
+  --color-border-soft: #edf0ec;   /* table row dividers */
+
+  /* ---------- Colour: brand ---------- */
+  --color-primary: #0b5f5b;       /* teal */
+  --color-primary-hover: #08433f;
+  --color-primary-tint: #e3f0ee;
+  --color-primary-mid: #5e9e96;
+  --color-primary-on-dark: #a9c9c4;
+  --color-primary-soft-on: #cfe6e2;
+
+  --color-accent: #c24e1a;        /* clay / orange */
+  --color-accent-strong: #8e3a13; /* accent text on tint */
+  --color-accent-tint: #fbe9df;
+  --color-accent-ink: #3a2016;    /* text on accent tint */
+  --color-accent-ink-2: #4a2a1c;
+  --color-accent-bright: #e0662f;
+  --color-accent-peach: #f6b08e;
+  --color-accent-peach-2: #f3d3c3;
+
+  /* ---------- Colour: dark surfaces (hero trip card, etc.) ---------- */
+  --color-dark: #13201d;
+  --color-dark-raised: #1f302c;
+  --color-dark-accent: #3a2016;
+  --color-on-dark: #ffffff;
+  --color-on-dark-muted: #cfdad7;
+  --color-on-dark-faint: #9fb3ae;
+
+  /* ---------- Colour: friend / category tones ---------- */
+  --tone-mint: #8fc7bf;
+  --tone-sand: #e9d79a;
+  --tone-lilac: #c9b8e8;
+  --tone-peach: #f6b08e;
+  --tone-sage: #b9d3a8;
+  --tone-blush: #f3c6b3;
+  --tone-sky: #bfd7ea;
+  --tone-wheat: #d8c9a3;
+
+  /* Photo placeholder tones (stand-ins until real media) */
+  --media-forest: #3d5a52;
+  --media-earth: #6b4a2b;
+  --media-plum: #5a3a47;
+  --media-pine: #2e4a45;
+  --media-navy: #394b6a;
+  --media-slate: #31455e;
+  --media-bronze: #6e5432;
+
+  --overlay-dark: rgba(0, 0, 0, 0.45);
+  --overlay-light: rgba(255, 255, 255, 0.92);
+
+  /* ---------- Type ---------- */
+  --font-body: var(--font-inter), Inter, system-ui, sans-serif;
+  --font-display: var(--font-bricolage), "Bricolage Grotesque", var(--font-inter), Inter, sans-serif;
+
+  --text-xs: 11px;
+  --text-sm: 12px;
+  --text-13: 13px;
+  --text-14: 14px;
+  --text-15: 15px;
+  --text-md: 16px;
+  --text-17: 17px;
+  --text-lg: 18px;
+  --text-xl: 20px;
+  --text-22: 22px;
+  --text-26: 26px;
+  --text-30: 30px;
+  --text-34: 34px;
+  --text-36: 36px;
+  --text-40: 40px;
+  --text-hero: clamp(36px, 5vw, 60px);
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  --tracking-tight: -0.03em;
+  --tracking-snug: -0.02em;
+  --tracking-slight: -0.01em;
+  --tracking-eyebrow: 0.08em;
+  --tracking-label: 0.06em;
+
+  /* ---------- Spacing ---------- */
+  --space-1: 4px;
+  --space-2: 6px;
+  --space-3: 8px;
+  --space-4: 10px;
+  --space-5: 12px;
+  --space-6: 14px;
+  --space-7: 16px;
+  --space-8: 18px;
+  --space-9: 20px;
+  --space-10: 24px;
+  --space-11: 28px;
+  --space-12: 32px;
+  --space-14: 40px;
+  --space-16: 56px;
+  --space-20: 80px;
+
+  --page-max: 1280px;
+  --page-gutter: 32px;
+
+  /* ---------- Radii ---------- */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 14px;
+  --radius-2xl: 18px;
+  --radius-3xl: 20px;
+  --radius-4xl: 24px;
+  --radius-pill: 999px;
+
+  /* ---------- Sizes ---------- */
+  --touch: 44px;          /* minimum touch target */
+  --control-sm: 36px;
+  --control-md: 40px;
+  --control-lg: 48px;
+  --control-xl: 56px;
+}
+
+@media (max-width: 640px) {
+  :root {
+    --page-gutter: 16px;
+  }
+}

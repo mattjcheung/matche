@@ -1,0 +1,94 @@
+/* ---- Tag ---- */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-4);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+  line-height: 1.35;
+}
+
+.tagMd {
+  padding: var(--space-2) var(--space-5);
+  font-size: var(--text-13);
+  font-weight: var(--weight-regular);
+}
+
+.tag_primary {
+  background: var(--color-primary-tint);
+  color: var(--color-primary);
+}
+
+.tag_accent {
+  background: var(--color-accent-tint);
+  color: var(--color-accent-strong);
+}
+
+.tag_neutral {
+  background: var(--color-surface-subtle);
+  color: var(--color-ink-3);
+}
+
+.tag_dark {
+  background: var(--color-ink);
+  color: var(--color-on-dark);
+}
+
+.tag_muted {
+  background: var(--color-surface-muted);
+  color: var(--color-ink-2);
+}
+
+.tag_overlay {
+  background: var(--overlay-dark);
+  color: var(--color-on-dark);
+}
+
+.tag_onDark {
+  background: var(--color-dark-raised);
+  color: var(--color-on-dark);
+}
+
+/* ---- ChipToggle ---- */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  min-height: var(--touch);
+  padding: 0 var(--space-7);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-size: var(--text-14);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.chip:hover {
+  border-color: var(--color-ink-placeholder);
+}
+
+.chipSm {
+  min-height: var(--control-md);
+  padding: 0 var(--space-6);
+  font-size: var(--text-13);
+}
+
+.chip_ink[aria-pressed="true"],
+.chip_ink[aria-selected="true"] {
+  background: var(--color-ink);
+  border-color: var(--color-ink);
+  color: var(--color-on-dark);
+}
+
+.chip_primary[aria-pressed="true"],
+.chip_primary[aria-selected="true"] {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-on-dark);
+}

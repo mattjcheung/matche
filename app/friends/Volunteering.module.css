@@ -1,0 +1,100 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+  padding: var(--space-12);
+  border-radius: 28px;
+  background: var(--color-dark);
+  color: var(--color-on-dark);
+}
+
+@media (max-width: 640px) {
+  .section {
+    padding: var(--space-9) var(--space-7);
+  }
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--space-7);
+}
+
+.headText {
+  max-width: 640px;
+}
+
+.title.title {
+  margin-top: var(--space-2);
+  font-size: 32px;
+}
+
+.intro {
+  margin: var(--space-3) 0 0;
+  font-size: var(--text-15);
+  line-height: 1.5;
+  color: var(--color-on-dark-muted);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+  gap: var(--space-6);
+}
+
+.card {
+  padding: var(--space-8);
+  border-radius: var(--radius-2xl);
+  background: var(--color-dark-raised);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.tag {
+  align-self: flex-start;
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: var(--text-17);
+  font-weight: var(--weight-semibold);
+  line-height: 1.3;
+}
+
+.meta {
+  margin: 0;
+  font-size: var(--text-14);
+  color: var(--color-on-dark-muted);
+}
+
+.fit {
+  margin: 0;
+  font-size: var(--text-14);
+  font-weight: var(--weight-semibold);
+  color: var(--color-accent-peach);
+}
+
+/* Doubled selector: wins over the shared Button rules regardless of load order. */
+.cta.cta {
+  margin-top: auto;
+  border-radius: var(--radius-md);
+  font-size: var(--text-14);
+}
+
+.empty {
+  margin: 0;
+  padding: var(--space-8);
+  border-radius: var(--radius-2xl);
+  background: var(--color-dark-raised);
+  font-size: var(--text-15);
+  color: var(--color-on-dark-muted);
+}
+
+.note {
+  margin: 0;
+  font-size: var(--text-13);
+  color: var(--color-on-dark-muted);
+}

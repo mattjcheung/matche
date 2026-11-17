@@ -1,0 +1,50 @@
+.page {
+  min-height: 100vh;
+  background: var(--color-bg);
+  color: var(--color-ink);
+}
+
+.main {
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: var(--space-12) var(--page-gutter) var(--space-20);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-11);
+}
+
+.topLg {
+  padding-top: var(--space-14);
+}
+
+.gapLg {
+  gap: var(--space-16);
+}
+
+.row {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.split {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.primary {
+  flex: 999 1 600px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.secondary {
+  flex: 1 1 320px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-9);
+}

@@ -1,0 +1,206 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+  scroll-margin-top: var(--space-7);
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.h2 {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-snug);
+  line-height: 1.2;
+}
+
+/* Segmented: design uses 14px side padding */
+.modeToggle button {
+  padding: 0 var(--space-6);
+}
+
+/* ---- wishlist banner ---- */
+.banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-7);
+  padding: var(--space-9);
+  border-radius: var(--radius-3xl);
+  background: var(--color-primary-tint);
+}
+
+.bannerIcon {
+  flex-shrink: 0;
+  color: var(--color-primary);
+}
+
+.bannerText {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+
+.bannerTitle {
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-md);
+}
+
+.bannerBody {
+  margin-top: var(--space-1);
+  font-size: var(--text-14);
+  color: var(--color-ink-2);
+  line-height: 1.5;
+}
+
+.banner .btn14 {
+  padding: 0 var(--space-7);
+  font-size: var(--text-14);
+}
+
+/* ---- map + stops ---- */
+.routeRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: var(--space-9);
+}
+
+.map {
+  flex: 1 1 280px;
+  margin: 0;
+  padding: var(--space-9);
+  border-radius: var(--radius-3xl);
+  background: var(--color-dark);
+  color: var(--color-on-dark);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-height: 300px;
+}
+
+.mapCaption {
+  font-size: var(--text-13);
+  font-weight: var(--weight-semibold);
+  color: var(--color-primary-on-dark);
+}
+
+.mapSvg {
+  width: 100%;
+  height: auto;
+  flex: 1 1 auto;
+}
+
+.pathAll {
+  fill: none;
+  stroke: color-mix(in srgb, var(--tone-mint) 30%, var(--color-dark));
+  stroke-width: 2;
+  stroke-dasharray: 4 5;
+}
+
+.pathOvernight {
+  fill: none;
+  stroke: var(--tone-mint);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.node {
+  fill: var(--tone-mint);
+}
+
+.nodeDay {
+  fill: var(--color-accent-peach);
+}
+
+.label,
+.labelDay {
+  font-family: var(--font-body);
+  font-size: var(--text-13);
+  fill: var(--color-on-dark);
+}
+
+.labelDay {
+  font-size: var(--text-sm);
+  fill: var(--color-accent-peach-2);
+}
+
+.mapLegend {
+  font-size: var(--text-13);
+  color: var(--color-on-dark-muted);
+}
+
+.stops {
+  flex: 2 1 380px;
+  min-width: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.stop {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-6);
+  padding: var(--space-7);
+  border-radius: 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+.num {
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-ink);
+  color: var(--color-on-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-14);
+  font-weight: var(--weight-semibold);
+}
+
+.stopBody {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.stopTop {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.place {
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-17);
+}
+
+.stop .tag {
+  padding: 3px var(--space-4);
+}
+
+.when {
+  font-size: var(--text-14);
+  color: var(--color-ink-muted);
+}
+
+.detail {
+  font-size: var(--text-14);
+  color: var(--color-ink-2);
+}

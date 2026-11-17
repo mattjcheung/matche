@@ -1,0 +1,33 @@
+.banner {
+  background: var(--color-ink);
+  color: var(--color-on-dark);
+}
+
+.bannerInner {
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: var(--space-5) var(--page-gutter);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.bannerText {
+  margin: 0;
+  font-size: var(--text-15);
+}
+
+/* Design: 16px padding, 10px radius, 14px label. */
+.bannerInner .bannerButton {
+  padding: 0 var(--space-7);
+  border-radius: var(--radius-md);
+  font-size: var(--text-14);
+}
+
+/* Doubled class beats the shared Button size rule regardless of load order. */
+.toggle.toggle {
+  padding: 0 var(--space-7);
+  font-size: var(--text-14);
+}

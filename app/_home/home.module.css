@@ -1,0 +1,251 @@
+/* ---------- Hero ---------- */
+.hero {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  gap: var(--space-10);
+  align-items: stretch;
+}
+
+.heroText {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-9);
+  padding: var(--space-3) 0;
+}
+
+.greeting {
+  font-size: var(--text-15);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink-muted);
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-top: var(--space-3);
+}
+
+.nextTrip {
+  text-decoration: none;
+}
+
+.nextTripTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-7);
+}
+
+.nextEyebrow {
+  margin-bottom: var(--space-2);
+}
+
+.nextMeta {
+  margin-top: var(--space-2);
+  color: var(--color-on-dark-muted);
+  font-size: var(--text-15);
+}
+
+.nextStats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-5);
+}
+
+.sources {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.openPlanner {
+  align-self: flex-start;
+  margin-top: auto;
+  padding: var(--space-5) var(--space-8);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-15);
+}
+
+.nextTrip:hover .openPlanner {
+  background: var(--color-primary-tint);
+}
+
+/* ---------- Generic section ---------- */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-9);
+}
+
+.smallText {
+  font-size: var(--text-14);
+}
+
+/* ---------- Trips ---------- */
+.tripGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+  gap: var(--space-7);
+}
+
+.tripCard {
+  padding: var(--space-9);
+}
+
+.tripCardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.tripPlaces {
+  margin-top: var(--space-1);
+}
+
+/* ---------- Feed row ---------- */
+.feedRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-12);
+  align-items: flex-start;
+}
+
+.feedCol {
+  flex: 999 1 600px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.sideCol {
+  flex: 1 1 320px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-9);
+}
+
+.friendRow {
+  display: flex;
+  gap: var(--space-5);
+  align-items: flex-start;
+}
+
+.minw0 {
+  min-width: 0;
+}
+
+.friendLine {
+  font-size: var(--text-15);
+}
+
+.friendName {
+  color: var(--color-ink);
+  font-weight: var(--weight-bold);
+  text-decoration: none;
+}
+
+.friendName:hover {
+  text-decoration: underline;
+}
+
+.friendMeta {
+  margin-top: 3px;
+}
+
+.textLink {
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-15);
+  padding: var(--space-3) 0;
+}
+
+.meetCopy {
+  font-size: var(--text-15);
+  color: var(--color-accent-ink-2);
+  line-height: 1.5;
+}
+
+.alignStart {
+  align-self: flex-start;
+}
+
+/* ---------- Recaps ---------- */
+.recapGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+  gap: var(--space-7);
+}
+
+.recap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.recapMedia {
+  padding: var(--space-7);
+}
+
+.recapTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.recapMedia > button:not(:first-child) {
+  align-self: center;
+}
+
+.recapCaption {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+
+.recapTitle {
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-md);
+}
+
+.recapMeta {
+  margin-top: var(--space-1);
+}
+
+/* ---------- Stories ---------- */
+.storyGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+  gap: var(--space-7);
+}
+
+.story {
+  padding: var(--space-7);
+}
+
+.storyCover {
+  padding: var(--space-4);
+}
+
+.storyTitle a {
+  color: var(--color-ink);
+  text-decoration: none;
+}
+
+.storyTitle a:hover {
+  text-decoration: underline;
+}
+
+.storyBlurb {
+  font-size: var(--text-15);
+  color: var(--color-ink-3);
+  line-height: 1.5;
+}

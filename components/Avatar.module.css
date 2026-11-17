@@ -1,0 +1,20 @@
+.avatar {
+  flex-shrink: 0;
+  flex-grow: 0;
+  border-radius: 50%;
+  border-style: solid;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--weight-semibold);
+  line-height: 1;
+  user-select: none;
+}
+
+.stack {
+  display: inline-flex;
+}
+
+.overlap {
+  margin-left: -10px;
+}

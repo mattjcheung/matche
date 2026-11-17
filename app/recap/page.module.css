@@ -1,0 +1,125 @@
+.eyebrow {
+  font-size: var(--text-sm);
+}
+
+.title {
+  margin-top: 2px;
+  font-size: 28px;
+  line-height: 1.1;
+}
+
+/* ---------- Player ---------- */
+.player {
+  position: relative;
+  height: 340px;
+  border-radius: 22px;
+  background: var(--color-dark);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: var(--space-7);
+}
+
+.player::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 55%;
+  background: var(--recap-tone, var(--media-pine));
+}
+
+.player > * {
+  position: relative;
+}
+
+.player > button {
+  align-self: center;
+  background: var(--color-surface);
+}
+
+.playerTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.playerChip {
+  padding: var(--space-1) var(--space-4);
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.16);
+  color: var(--color-on-dark);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.playerCaption {
+  font-size: var(--text-sm);
+  color: var(--color-on-dark-muted);
+}
+
+.playerTitle {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: var(--weight-bold);
+  color: var(--color-on-dark);
+}
+
+.playerDates {
+  margin-top: 2px;
+  font-size: var(--text-13);
+  color: var(--color-on-dark-muted);
+}
+
+.note {
+  font-size: var(--text-14);
+  color: var(--color-ink-2);
+  line-height: 1.45;
+}
+
+/* ---------- Style picker ---------- */
+.styles {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.styleOption {
+  flex: 1 1 0;
+  min-height: var(--touch);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-size: var(--text-14);
+  font-weight: var(--weight-semibold);
+}
+
+.styleOption[aria-pressed="true"] {
+  border: 2px solid var(--color-primary);
+  background: var(--color-primary-tint);
+  color: var(--color-primary);
+}
+
+/* ---------- Stats & actions ---------- */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.rateHeading {
+  font-size: var(--text-15);
+  font-weight: var(--weight-semibold);
+}
+
+.smallButton {
+  font-size: var(--text-14);
+}
+
+.ctas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
