@@ -6,11 +6,12 @@ import { getActiveTrip } from "@/lib/data/queries/trips";
 import { RecapStyle } from "./RecapStyle";
 import styles from "./page.module.css";
 import { loadDb } from "@/lib/data/db";
+import { needsFor } from "@/lib/data/queries/needs";
 
 export const metadata: Metadata = { title: "Trip recap" };
 
 export default async function RecapPage() {
-  await loadDb();
+  await loadDb(needsFor("ontrip", "trips"));
   const trip = getActiveTrip();
   const r = getTripRecap(trip.id);
   if (!r) notFound();

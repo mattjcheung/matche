@@ -21,6 +21,7 @@ import { NotesSection } from "./NotesSection";
 import { OwnerOnly, ProfileViewProvider, PublicBanner, PublicToggle } from "./ProfileView";
 import styles from "./page.module.css";
 import { loadDb } from "@/lib/data/db";
+import { needsFor } from "@/lib/data/queries/needs";
 
 export const metadata: Metadata = {
   title: "Your profile",
@@ -33,7 +34,7 @@ const CONTINENTS = 7;
 const BAR_MAX_PX = 110;
 
 export default async function MePage() {
-  await loadDb();
+  await loadDb(needsFor("me", "trips"));
   const { user, profile, joinedYear } = getProfile();
   const stats = getTravelStats();
   const years = listNightsByYear();

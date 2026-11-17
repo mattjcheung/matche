@@ -7,11 +7,12 @@ import { cx } from "@/lib/cx";
 import { EntryComposer } from "./EntryComposer";
 import styles from "./page.module.css";
 import { loadDb } from "@/lib/data/db";
+import { needsFor } from "@/lib/data/queries/needs";
 
 export const metadata: Metadata = { title: "Trip journal" };
 
 export default async function JournalPage() {
-  await loadDb();
+  await loadDb(needsFor("ontrip", "trips"));
   const trip = getActiveTrip();
   const day = getJournalDay(trip.id);
   const entries = listGroupEntries(trip.id);

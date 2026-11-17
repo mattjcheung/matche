@@ -7,11 +7,12 @@ import { cx } from "@/lib/cx";
 import { MonthGrid } from "./MonthGrid";
 import styles from "./page.module.css";
 import { loadDb } from "@/lib/data/db";
+import { needsFor } from "@/lib/data/queries/needs";
 
 export const metadata: Metadata = { title: "Calendar" };
 
 export default async function CalendarPage() {
-  await loadDb();
+  await loadDb(needsFor("calendar", "ontrip", "trips"));
   const trip = getActiveTrip();
   const months = getTripCalendar(trip.id);
   const todos = listTodoVMs(trip.id);

@@ -10,16 +10,17 @@ import {
 } from "@/lib/data/queries/profile";
 import styles from "./page.module.css";
 import { loadDb } from "@/lib/data/db";
+import { needsFor } from "@/lib/data/queries/needs";
 
 export async function generateMetadata({ params }: PageProps<"/friends/[id]">): Promise<Metadata> {
-  await loadDb();
+  await loadDb(needsFor("profile"));
   const { id } = await params;
   const profile = getFriendProfile(id);
   return { title: profile ? `${profile.shortName}’s profile` : "Friend not found" };
 }
 
 export default async function FriendProfilePage({ params }: PageProps<"/friends/[id]">) {
-  await loadDb();
+  await loadDb(needsFor("profile"));
   const { id } = await params;
   const profile = getFriendProfile(id);
   if (!profile) notFound();

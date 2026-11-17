@@ -7,43 +7,76 @@ import type { Seed } from "./seed";
 import { TABLES, type TableKey } from "./tables";
 import type { User } from "./types";
 
-/** Every table the signed-in user can see (row-level security applied). */
+/** Tables the signed-in user can see (row-level security applied). */
 export type Db = { [K in TableKey]: Seed[K] };
 
-/**
- * Request-scoped snapshot. Pages call `await loadDb()` once; the query
- * functions in `lib/data/queries/*` then read it synchronously via `db()`.
- */
-const holder = cache(() => ({ db: null as Db | null, userId: null as string | null, pending: null as Promise<Db> | null }));
+type Holder = {
+  userId: string | null;
+  loaded: Partial<Record<TableKey, unknown[]>>;
+  inflight: Partial<Record<TableKey, Promise<void>>>;
+  view: Db | null;
+};
 
-export async function loadDb(): Promise<Db> {
+/** Request-scoped state: each table is fetched at most once per request. */
+const holder = cache((): Holder => ({ userId: null, loaded: {}, inflight: {}, view: null }));
+
+/**
+ * Load the tables a page needs, then read them synchronously through the
+ * query functions (`db()`). Pages pass `needsFor(...)` from
+ * `lib/data/queries/needs.ts`; `users` is always included.
+ */
+export async function loadDb(tables: readonly TableKey[]): Promise<void> {
   const h = holder();
-  if (h.db) return h.db;
-  h.pending ??= (async () => {
+  if (!h.userId) {
     const { userId } = await auth();
     if (!userId) redirect("/sign-in");
-    const sb = createServerSupabase();
-    await ensureAccount(sb, userId);
+    h.userId = userId;
+  }
+  const sb = createServerSupabase();
+  const wanted = [...new Set<TableKey>(["users", ...tables])];
 
-    const entries = await Promise.all(
-      (Object.keys(TABLES) as TableKey[]).map(async (key) => {
+  await Promise.all(
+    wanted.map((key) => {
+      if (h.loaded[key]) return undefined;
+      h.inflight[key] ??= (async () => {
         const { data, error } = await sb.from(TABLES[key]).select("*");
         if (error) throw new Error(`Supabase: reading ${TABLES[key]} failed – ${error.message}`);
-        return [key, data ?? []] as const;
-      }),
-    );
-    h.userId = userId;
-    h.db = Object.fromEntries(entries) as unknown as Db;
-    return h.db;
-  })();
-  return h.pending;
+        h.loaded[key] = data ?? [];
+      })();
+      return h.inflight[key];
+    }),
+  );
+
+  // First visit: no profile row yet → claim the demo account or create one.
+  const users = h.loaded.users as User[];
+  if (!users.some((u) => u.id === h.userId)) {
+    await createAccount(sb, h.userId!);
+    const { data, error } = await sb.from("users").select("*");
+    if (error) throw new Error(`Supabase: reading users failed – ${error.message}`);
+    h.loaded.users = data ?? [];
+    // Other tables may now reference the new id; refetch what this page uses.
+    for (const key of wanted) {
+      if (key === "users") continue;
+      delete h.loaded[key];
+      delete h.inflight[key];
+    }
+    if (wanted.length > 1) return loadDb(tables);
+  }
 }
 
-/** The loaded snapshot. Throws if the page forgot `await loadDb()`. */
+/** The loaded tables. Reading a table the page didn't load is a bug and throws. */
 export function db(): Db {
-  const d = holder().db;
-  if (!d) throw new Error("db() called before `await loadDb()` in this request");
-  return d;
+  const h = holder();
+  h.view ??= new Proxy({} as Db, {
+    get(_, key: string) {
+      const rows = h.loaded[key as TableKey];
+      if (!rows) {
+        throw new Error(`db().${key} was not loaded for this page – add its query module to needsFor(...) and run \`npm run db:needs\``);
+      }
+      return rows;
+    },
+  });
+  return h.view;
 }
 
 /** The signed-in user's id (Clerk user id). */
@@ -74,15 +107,8 @@ export function getUser(id: string): User {
   );
 }
 
-/**
- * First visit: take over the demo account if it's unclaimed, otherwise create
- * a fresh profile from the Clerk user.
- */
-async function ensureAccount(sb: ReturnType<typeof createServerSupabase>, userId: string) {
-  const { data: existing, error } = await sb.from("users").select("id").eq("id", userId).maybeSingle();
-  if (error) throw new Error(`Supabase: checking your profile failed – ${error.message}`);
-  if (existing) return;
-
+/** Take over the demo account if it's unclaimed, otherwise create a profile from Clerk. */
+async function createAccount(sb: ReturnType<typeof createServerSupabase>, userId: string) {
   const { data: claimed, error: claimError } = await sb.rpc("claim_demo_account");
   if (claimError) throw new Error(`Supabase: claiming the demo account failed – ${claimError.message}`);
   if (claimed) return;
@@ -95,7 +121,7 @@ async function ensureAccount(sb: ReturnType<typeof createServerSupabase>, userId
     .join("")
     .slice(0, 2)
     .toUpperCase();
-  const { error: insertError } = await sb.from("users").insert({
+  const { error } = await sb.from("users").insert({
     id: userId,
     name,
     short_name: name.split(" ")[0],
@@ -107,5 +133,6 @@ async function ensureAccount(sb: ReturnType<typeof createServerSupabase>, userId
     home_lon: 0,
     home_lat: 0,
   });
-  if (insertError) throw new Error(`Supabase: creating your profile failed – ${insertError.message}`);
+  // A concurrent request may have created it first.
+  if (error && error.code !== "23505") throw new Error(`Supabase: creating your profile failed – ${error.message}`);
 }

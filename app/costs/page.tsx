@@ -6,6 +6,7 @@ import { ExpenseTable } from "./ExpenseTable";
 import { SettleUp } from "./SettleUp";
 import styles from "./page.module.css";
 import { loadDb } from "@/lib/data/db";
+import { needsFor } from "@/lib/data/queries/needs";
 
 export const metadata: Metadata = { title: "Cost tracker" };
 
@@ -13,7 +14,7 @@ export const metadata: Metadata = { title: "Cost tracker" };
 const CATEGORY_COLORS = ["var(--color-primary)", "var(--color-primary-mid)", "var(--color-accent)", "var(--color-ink)", "var(--color-ink-placeholder)"];
 
 export default async function CostsPage() {
-  await loadDb();
+  await loadDb(needsFor("costs", "trips"));
   const trip = getActiveTrip();
   const c = getCostSummary(trip.id);
 

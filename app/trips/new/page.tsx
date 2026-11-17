@@ -5,11 +5,12 @@ import { getNewTripOptions } from "@/lib/data/queries/new-trip";
 import { NewTripWizard } from "./NewTripWizard";
 import styles from "./page.module.css";
 import { loadDb } from "@/lib/data/db";
+import { needsFor } from "@/lib/data/queries/needs";
 
 export const metadata: Metadata = { title: "Start a trip" };
 
 export default async function NewTripPage() {
-  await loadDb();
+  await loadDb(needsFor("new-trip"));
   const options = getNewTripOptions();
 
   return (

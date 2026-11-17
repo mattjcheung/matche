@@ -31,9 +31,10 @@ import {
 import { Feed } from "./_home/Feed";
 import styles from "./_home/home.module.css";
 import { loadDb } from "@/lib/data/db";
+import { needsFor } from "@/lib/data/queries/needs";
 
 export default async function HomePage() {
-  await loadDb();
+  await loadDb(needsFor("home"));
   const me = getCurrentUserVM();
   const next = getNextTripSummary();
   const trips = listTripCards();

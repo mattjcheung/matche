@@ -17,9 +17,10 @@ import { getTripBySlug } from "@/lib/data/queries/trips";
 import { Itinerary } from "./Itinerary";
 import styles from "./page.module.css";
 import { loadDb } from "@/lib/data/db";
+import { needsFor } from "@/lib/data/queries/needs";
 
 export async function generateMetadata({ params }: PageProps<"/trips/[slug]">): Promise<Metadata> {
-  await loadDb();
+  await loadDb(needsFor("trip-planner", "trips"));
   const { slug } = await params;
   const trip = getTripBySlug(slug);
   return { title: trip ? trip.name : "Trip not found" };
@@ -35,7 +36,7 @@ const SECTIONS = [
 ];
 
 export default async function TripPage({ params }: PageProps<"/trips/[slug]">) {
-  await loadDb();
+  await loadDb(needsFor("trip-planner", "trips"));
   const { slug } = await params;
   const trip = getTripBySlug(slug);
   if (!trip) notFound();

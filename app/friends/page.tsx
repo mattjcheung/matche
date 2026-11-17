@@ -11,6 +11,7 @@ import { FriendsMap } from "./FriendsMap";
 import { Volunteering } from "./Volunteering";
 import styles from "./page.module.css";
 import { loadDb } from "@/lib/data/db";
+import { needsFor } from "@/lib/data/queries/needs";
 
 export const metadata: Metadata = {
   title: "Friends",
@@ -23,7 +24,7 @@ const DOT_CLASS: Record<FriendTripColumnStage, string> = {
 };
 
 export default async function FriendsPage() {
-  await loadDb();
+  await loadDb(needsFor("friends"));
   const map = getFriendsMap();
   const columns = getFriendTripColumns();
   const volunteering = getVolunteering();
