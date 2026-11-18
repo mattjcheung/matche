@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Avatar, Button, ButtonLink, Display, Eyebrow, MediaPlaceholder, ProgressBar, SiteHeader } from "@/components";
+import { Avatar, Button, ButtonLink, Display, Eyebrow, Icon, MediaPlaceholder, ProgressBar, SiteHeader } from "@/components";
 import { cx } from "@/lib/cx";
 import {
   getAskFriends,
@@ -10,11 +10,14 @@ import {
   getTripEssentials,
   getTripHeader,
   getTripItinerary,
+  getTripMode,
   listTripBookings,
+  type TripModeVM,
   listTripExperiences,
 } from "@/lib/data/queries/trip-planner";
 import { getTripBySlug } from "@/lib/data/queries/trips";
 import { Itinerary } from "./Itinerary";
+import { SectionNav, type SectionNavItem } from "./SectionNav";
 import styles from "./page.module.css";
 import { loadDb } from "@/lib/data/db";
 import { needsFor } from "@/lib/data/queries/needs";
@@ -26,7 +29,8 @@ export async function generateMetadata({ params }: PageProps<"/trips/[slug]">): 
   return { title: trip ? trip.name : "Trip not found" };
 }
 
-const SECTIONS = [
+const PLAN_SECTIONS: SectionNavItem[] = [
+  { href: "#plan", label: "Overview" },
   { href: "#itinerary", label: "Itinerary" },
   { href: "#bookings", label: "Bookings" },
   { href: "#experiences", label: "Experience bank" },
@@ -35,12 +39,27 @@ const SECTIONS = [
   { href: "/costs", label: "Costs" },
 ];
 
+const REVIEW_SECTIONS: SectionNavItem[] = [
+  { href: "#review", label: "Your review" },
+  { href: "#route", label: "Route" },
+  { href: "#bookings", label: "Bookings" },
+  { href: "/journal", label: "Journal" },
+];
+
+const INTENT_LABEL: Record<TripModeVM["intent"], string> = {
+  review: "Reviewing",
+  continue: "Planning",
+  adjust: "Adjusting plans",
+};
+
 export default async function TripPage({ params }: PageProps<"/trips/[slug]">) {
   await loadDb(needsFor("trip-planner", "trips"));
   const { slug } = await params;
   const trip = getTripBySlug(slug);
   if (!trip) notFound();
 
+  const mode = getTripMode(trip);
+  const reviewing = mode.intent === "review";
   const header = getTripHeader(trip);
   const itinerary = getTripItinerary(trip.id);
   const bookings = listTripBookings(trip.id);
@@ -58,37 +77,48 @@ export default async function TripPage({ params }: PageProps<"/trips/[slug]">) {
         <div className={styles.bandInner}>
           <div className={styles.titleRow}>
             <div className={styles.titleBlock}>
-              <Eyebrow>{header.eyebrow}</Eyebrow>
+              <Link href="/trips" className={styles.back}>
+                <Icon name="chevron-left" size={16} strokeWidth={2} /> All trips
+              </Link>
+              <Eyebrow>
+                {header.eyebrow} · <span className={styles[`intent_${mode.intent}`]}>{INTENT_LABEL[mode.intent]}</span>
+              </Eyebrow>
               <h1 className={styles.h1}>{header.name}</h1>
               <p className={styles.meta}>{header.meta}</p>
             </div>
             <div className={styles.headerActions}>
-              <Button variant="secondary" className={styles.btn14}>
-                Invite to trip
-              </Button>
-              <ButtonLink href="/calendar" className={cx(styles.btn14, styles.inkBtn)}>
-                Open calendar
-              </ButtonLink>
+              {reviewing ? (
+                <>
+                  <ButtonLink href="/journal" variant="secondary" className={styles.btn14}>
+                    Open journal
+                  </ButtonLink>
+                  <ButtonLink href="/recap" className={cx(styles.btn14, styles.inkBtn)}>
+                    Make a recap
+                  </ButtonLink>
+                </>
+              ) : (
+                <>
+                  <Button variant="secondary" className={styles.btn14}>
+                    Invite to trip
+                  </Button>
+                  <ButtonLink href="/calendar" className={cx(styles.btn14, styles.inkBtn)}>
+                    Open calendar
+                  </ButtonLink>
+                </>
+              )}
             </div>
           </div>
-          <nav aria-label="Trip sections" className={styles.tabs}>
-            {SECTIONS.map((s, i) =>
-              s.href.startsWith("#") ? (
-                <a key={s.href} href={s.href} className={cx(styles.tab, i === 0 && styles.tabActive)}>
-                  {s.label}
-                </a>
-              ) : (
-                <Link key={s.href} href={s.href} className={styles.tab}>
-                  {s.label}
-                </Link>
-              ),
-            )}
-          </nav>
+          <SectionNav items={reviewing ? REVIEW_SECTIONS : PLAN_SECTIONS} />
         </div>
       </div>
 
+      {reviewing && mode.review ? (
+        <ReviewMain mode={mode} bookings={bookings} />
+      ) : (
       <main className={styles.main}>
         <div className={styles.primary}>
+          <ModePanel mode={mode} />
+
           <Itinerary data={itinerary} />
 
           {/* ---------------- Bookings ---------------- */}
@@ -256,7 +286,7 @@ export default async function TripPage({ params }: PageProps<"/trips/[slug]">) {
         </div>
 
         <aside className={styles.aside}>
-          <section aria-labelledby="ask-h" className={cx(styles.panel, styles.askPanel)}>
+          <section id="ask" aria-labelledby="ask-h" className={cx(styles.panel, styles.askPanel)}>
             <div>
               <Display id="ask-h" size="sm">
                 Ask a friend
@@ -322,6 +352,192 @@ export default async function TripPage({ params }: PageProps<"/trips/[slug]">) {
           </Link>
         </aside>
       </main>
+      )}
     </div>
+  );
+}
+
+/* ------------------------------------------------------------------ Planning / adjusting */
+
+function ModePanel({ mode }: { mode: TripModeVM }) {
+  if (mode.intent === "continue") {
+    const done = mode.steps.filter((s) => s.done).length;
+    return (
+      <section id="plan" aria-labelledby="plan-h" className={cx(styles.section, styles.modePanel)}>
+        <div className={styles.sectionHead}>
+          <div>
+            <h2 id="plan-h" className={styles.h2}>
+              {mode.title}
+            </h2>
+            <p className={styles.lede}>{mode.body}</p>
+          </div>
+          <span className={styles.stepCount}>
+            {done} of {mode.steps.length} done
+          </span>
+        </div>
+        <ol className={styles.steps}>
+          {mode.steps.map((s, i) => (
+            <li key={s.id}>
+              <a href={s.href} className={cx(styles.step, s.done && styles.stepDone)}>
+                <span className={styles.stepMark} aria-hidden="true">
+                  {s.done ? "✓" : i + 1}
+                </span>
+                <span className={styles.stepText}>
+                  <strong>{s.label}</strong>
+                  <span>{s.hint}</span>
+                </span>
+                <span className="visually-hidden">{s.done ? "(done)" : "(to do)"}</span>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </section>
+    );
+  }
+
+  const actions = [
+    { href: "#itinerary", label: "Change dates", hint: "Shift the whole trip or one stop" },
+    { href: "#itinerary", label: "Add or swap a stop", hint: "Re-route and re-check bookings" },
+    { href: "#bookings", label: "Update a booking", hint: "Edit, cancel or add one manually" },
+    { href: "#experiences", label: "Fill a free day", hint: "Ideas from friends and travellers" },
+    { href: "#packing", label: "Review packing", hint: "Tuned to your dates and stops" },
+  ];
+  return (
+    <section id="plan" aria-labelledby="plan-h" className={cx(styles.section, styles.modePanel)}>
+      <div>
+        <h2 id="plan-h" className={styles.h2}>
+          {mode.title}
+        </h2>
+        <p className={styles.lede}>{mode.body}</p>
+      </div>
+      <div className={styles.quickActions}>
+        {actions.map((a) => (
+          <a key={a.label} href={a.href} className={styles.quick}>
+            <strong>{a.label}</strong>
+            <span>{a.hint}</span>
+          </a>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ Reviewing a past trip */
+
+function ReviewMain({ mode, bookings }: { mode: TripModeVM; bookings: ReturnType<typeof listTripBookings> }) {
+  const r = mode.review!;
+  const stars = Math.round(Number(r.rating)) || 0;
+  return (
+    <main className={styles.main}>
+      <div className={styles.primary}>
+        <section id="review" aria-labelledby="review-h" className={cx(styles.section, styles.reviewHero)}>
+          <div className={styles.reviewCover} style={{ background: r.coverTone }}>
+            <p className={styles.reviewQuote}>“{r.highlight}”</p>
+            <p className={styles.reviewQuoteMeta}>From your journal · Day {r.highlightDay}</p>
+          </div>
+          <div className={styles.reviewBody}>
+            <div>
+              <h2 id="review-h" className={styles.h2}>
+                {mode.title}
+              </h2>
+              <p className={styles.lede}>{mode.body}</p>
+            </div>
+            <div className={styles.reviewStats}>
+              <div className={styles.reviewStat}>
+                <span className={styles.reviewValue}>{r.rating}</span>
+                <span className={styles.stars} role="img" aria-label={`Your rating: ${r.rating} out of 5`}>
+                  {"★".repeat(stars)}
+                  <span className={styles.starsOff}>{"★".repeat(5 - stars)}</span>
+                </span>
+              </div>
+              <div className={styles.reviewStat}>
+                <span className={styles.reviewValue}>{r.nights ?? "–"}</span>
+                <span className={styles.reviewLabel}>nights</span>
+              </div>
+              <div className={styles.reviewStat}>
+                <span className={styles.reviewValue}>{r.entries}</span>
+                <span className={styles.reviewLabel}>journal entries</span>
+              </div>
+              <div className={styles.reviewStat}>
+                <span className={styles.reviewValue}>{r.places.length}</span>
+                <span className={styles.reviewLabel}>places</span>
+              </div>
+            </div>
+            {r.photoTones.length > 0 && (
+              <div className={styles.photoStrip}>
+                {r.photoTones.map((tone, i) => (
+                  <MediaPlaceholder key={i} tone={tone} aspect="1 / 1" radius={12} />
+                ))}
+              </div>
+            )}
+            <div className={styles.headerActions}>
+              <Button className={styles.btn14}>Edit your review</Button>
+              <ButtonLink href="/home" variant="secondary" className={styles.btn14}>
+                Share to the feed
+              </ButtonLink>
+            </div>
+          </div>
+        </section>
+
+        <section id="route" aria-labelledby="route-h" className={styles.section}>
+          <div>
+            <h2 id="route-h" className={styles.h2}>
+              Route
+            </h2>
+            <p className={styles.lede}>{r.travellers === "Solo" ? "A solo trip." : `Travelled with ${r.travellers}.`}</p>
+          </div>
+          <ol className={styles.routeList}>
+            {r.places.map((p, i) => (
+              <li key={p} className={styles.routeStop}>
+                <span className={styles.stepMark} aria-hidden="true">
+                  {i + 1}
+                </span>
+                <span>{p}</span>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <section id="bookings" aria-labelledby="book-h" className={styles.section}>
+          <div>
+            <h2 id="book-h" className={styles.h2}>
+              Bookings
+            </h2>
+            <p className={styles.lede}>What you booked, for next time.</p>
+          </div>
+          {bookings.length === 0 ? (
+            <p className={styles.emptyNote}>No bookings were synced for this trip.</p>
+          ) : (
+            <ul className={styles.routeList}>
+              {bookings.map((b) => (
+                <li key={b.id} className={styles.routeStop}>
+                  <strong className={styles.what}>{b.what}</strong>
+                  <span className={styles.sub}>
+                    {b.when} · {b.via}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      </div>
+
+      <aside className={styles.aside}>
+        <section className={cx(styles.panel, styles.askPanel)}>
+          <Display size="sm">Turn it into a recap</Display>
+          <p className={styles.panelLede}>Matche cuts your journal photos and clips into a short film friends can watch and save stops from.</p>
+          <ButtonLink href="/recap" block>
+            Make a recap
+          </ButtonLink>
+        </section>
+        <section className={styles.panel}>
+          <Display size="sm">Go again?</Display>
+          <p className={styles.panelLede}>Start a new trip with this route as a template – swap the stops you’d skip.</p>
+          <ButtonLink href="/trips/new" variant="secondary" block className={styles.btn14}>
+            Plan a trip like this
+          </ButtonLink>
+        </section>
+      </aside>
+    </main>
   );
 }

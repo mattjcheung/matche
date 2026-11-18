@@ -12,6 +12,18 @@ body {
   padding: 0;
 }
 
+/* In-page links (#section) glide instead of jumping. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Leave a little breathing room above any section a link scrolls to. */
+[id] {
+  scroll-margin-top: var(--space-9);
+}
+
 body {
   background: var(--color-bg);
   color: var(--color-ink);

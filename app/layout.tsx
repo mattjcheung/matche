@@ -44,7 +44,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         },
       }}
     >
-      <html lang="en" className={`${inter.variable} ${bricolage.variable}`}>
+      {/* data-scroll-behavior: in-page links glide, but route changes still jump straight to the top. */}
+      <html lang="en" data-scroll-behavior="smooth" className={`${inter.variable} ${bricolage.variable}`}>
         <body>{children}</body>
       </html>
     </ClerkProvider>

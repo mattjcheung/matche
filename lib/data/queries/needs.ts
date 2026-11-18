@@ -20,6 +20,13 @@ export const NEEDS = {
     "tripMembers",
     "trips"
   ],
+  "dashboard": [
+    "bookings",
+    "todos",
+    "tripMembers",
+    "tripReviews",
+    "trips"
+  ],
   "friends": [
     "friendHighlights",
     "friendships",
@@ -103,6 +110,7 @@ export const NEEDS = {
     "tripGuides",
     "tripMembers",
     "tripOverlaps",
+    "tripReviews",
     "tripStopPlans",
     "tripStops",
     "trips",

@@ -3,6 +3,7 @@ import type { ISODate, Trip, TripBudget } from "../types";
 import type { ChecklistStatus, Destination, ExperienceSignal, TripStopStatus } from "../types.trip";
 import { daysUntilTrip, getTripMembers, STAGE_LABEL, tripDatesLabel } from "./trips";
 import { db, me, getUser } from "../db";
+import { APP_TODAY } from "../clock";
 
 /**
  * Queries for the trip planner screen (`/trips/[slug]`). Each returns plain,
@@ -358,4 +359,95 @@ export function getTripCostSummary(tripId: string, userId: string = me()): { hea
   const headline = owedToMe > 0 ? `You’re owed ${formatMoney(owedToMe)}` : iOwe.length ? "You owe the group" : "You’re all square";
   const owes = iOwe.map(([id, v]) => `You owe ${getUser(id).short_name} ${formatMoney(-v)}`);
   return { headline, detail: [...owes, "Open cost tracker →"].join(" · ") };
+}
+
+/* ------------------------------------------------------------------------ */
+/* Trip mode: review a past trip, continue planning, or adjust booked plans  */
+/* ------------------------------------------------------------------------ */
+
+export type TripIntent = "review" | "continue" | "adjust";
+
+export interface PlanStepVM {
+  id: string;
+  label: string;
+  hint: string;
+  done: boolean;
+  href: string;
+}
+
+export interface TripReviewVM {
+  rating: string;
+  entries: number;
+  highlight: string;
+  highlightDay: number;
+  coverTone: string;
+  photoTones: string[];
+  nights: number | null;
+  places: string[];
+  travellers: string;
+}
+
+export interface TripModeVM {
+  intent: TripIntent;
+  title: string;
+  body: string;
+  /** Continue planning: what's done and what's next. */
+  steps: PlanStepVM[];
+  /** Past trips only. */
+  review: TripReviewVM | null;
+}
+
+export function getTripMode(trip: Trip, userId: string = me()): TripModeVM {
+  const past = trip.stage === "completed" || (trip.end_date !== null && trip.end_date < APP_TODAY);
+  const members = getTripMembers(trip.id);
+
+  if (past) {
+    const r = db().tripReviews.find((x) => x.trip_id === trip.id && x.user_id === userId);
+    return {
+      intent: "review",
+      title: "Look back on this trip",
+      body: "Rate it, revisit your journal and turn the best bits into a recap friends can save.",
+      steps: [],
+      review: {
+        rating: r ? r.rating.toFixed(1) : "–",
+        entries: r?.journal_entry_count ?? 0,
+        highlight: r?.highlight_quote ?? "No highlight picked yet – choose a favourite journal moment.",
+        highlightDay: r?.highlight_day ?? 1,
+        coverTone: r?.cover_tone ?? "#3D5A52",
+        photoTones: r?.photo_tones ?? [],
+        nights: trip.start_date && trip.end_date ? daysBetween(trip.start_date, trip.end_date) : null,
+        places: trip.places,
+        travellers: members.length > 1 ? members.map((u) => u.short_name).join(", ") : "Solo",
+      },
+    };
+  }
+
+  if (trip.stage === "booked" || trip.stage === "travelling") {
+    return {
+      intent: "adjust",
+      title: trip.stage === "travelling" ? "You’re on this trip" : "Booked and on the way",
+      body: "Change dates, swap a stop or update a booking – everyone on the trip sees the change.",
+      steps: [],
+      review: null,
+    };
+  }
+
+  const tb = db().bookings.filter((b) => b.trip_id === trip.id);
+  const stays = tb.filter((b) => b.kind === "stay").length;
+  const steps: PlanStepVM[] = [
+    { id: "route", label: "Sketch a route", hint: `${trip.places.length} stops so far`, done: trip.places.length > 1, href: "#itinerary" },
+    { id: "dates", label: "Pick dates", hint: trip.start_date ? tripDatesLabel(trip) : trip.when_label, done: Boolean(trip.start_date), href: "#itinerary" },
+    { id: "crew", label: "Invite your crew", hint: members.length > 1 ? `${members.length} travellers` : "Just you so far", done: members.length > 1, href: "#ask" },
+    { id: "transport", label: "Book getting there", hint: tb.some((b) => b.kind === "flight" || b.kind === "rail") ? "Booked" : "Flights, rail or a car", done: tb.some((b) => b.kind === "flight" || b.kind === "rail"), href: "#bookings" },
+    { id: "stays", label: "Book stays", hint: `${stays} of ${trip.places.length} booked`, done: stays >= trip.places.length, href: "#bookings" },
+    { id: "essentials", label: "Check the essentials", hint: "Visas, costs and safety", done: false, href: "#essentials" },
+  ];
+  const next = steps.find((s) => !s.done);
+  return {
+    intent: "continue",
+    title: next ? `Next up: ${next.label.toLowerCase()}` : "Nearly there",
+    body: "Pick up where you left off. Every step you finish fills in the calendar, costs and packing list.",
+    steps,
+    review: null,
+  };
 }

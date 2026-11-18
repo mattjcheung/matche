@@ -75,3 +75,8 @@ export const STAGE_TONE: Record<Trip["stage"], "primary" | "accent" | "neutral" 
   travelling: "primary",
   completed: "dark",
 };
+
+/** The signed-in user's short name, e.g. for greetings. */
+export function getCurrentUserName(): string {
+  return getUser(me()).short_name;
+}
