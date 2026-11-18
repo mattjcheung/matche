@@ -45,7 +45,7 @@ export async function createPost(input: { kind: Extract<PostKind, "update" | "qu
     created_at: new Date().toISOString(),
   });
   if (error) return { ok: false as const, error: error.message };
-  revalidatePath("/");
+  revalidatePath("/home");
   return { ok: true as const };
 }
 
@@ -110,7 +110,7 @@ export async function createTrip(input: CreateTripInput) {
   const { error: memberError } = await sb.from("trip_members").insert(members);
   if (memberError) return { ok: false as const, error: memberError.message };
 
-  revalidatePath("/");
+  revalidatePath("/home");
   redirect(`/trips/${slug}`);
 }
 

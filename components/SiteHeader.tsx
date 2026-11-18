@@ -8,7 +8,7 @@ import { Icon, LogoMark } from "./Icon";
 import styles from "./SiteHeader.module.css";
 
 const NAV = [
-  { href: "/", label: "Discover", match: (p: string) => p === "/" },
+  { href: "/home", label: "Discover", match: (p: string) => p.startsWith("/home") },
   { href: "/trips", label: "Trips", match: (p: string) => p.startsWith("/trips") },
   { href: "/calendar", label: "Calendar", match: (p: string) => p.startsWith("/calendar") },
   { href: "/costs", label: "Costs", match: (p: string) => p.startsWith("/costs") },
@@ -25,7 +25,7 @@ export function SiteHeader({ notifications }: SiteHeaderProps) {
   return (
     <header className={styles.header}>
       <div className={styles.inner}>
-        <Link href="/" className={styles.brand}>
+        <Link href="/home" className={styles.brand}>
           <LogoMark />
           <span className={styles.wordmark}>Matche</span>
         </Link>

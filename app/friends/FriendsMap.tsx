@@ -5,7 +5,7 @@ import { Button, ButtonLink, Display, Segmented, Tag } from "@/components";
 import { cx } from "@/lib/cx";
 import type { FriendsMapData, MapMarker } from "@/lib/data/queries/friends";
 import styles from "./FriendsMap.module.css";
-import { WORLD_PATH, WORLD_VIEWBOX } from "./worldPath";
+import { WORLD_PATH, WORLD_VIEWBOX } from "@/lib/geo/worldPath";
 
 type Filter = "all" | "away" | "home";
 

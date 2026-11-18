@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: "Sign in" };
 export default function SignInPage() {
   return (
     <AuthFrame>
-      <SignIn signUpUrl="/sign-up" fallbackRedirectUrl="/" />
+      <SignIn signUpUrl="/sign-up" fallbackRedirectUrl="/home" />
     </AuthFrame>
   );
 }

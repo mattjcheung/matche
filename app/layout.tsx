@@ -35,7 +35,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <ClerkProvider
       signInUrl="/sign-in"
       signUpUrl="/sign-up"
-      afterSignOutUrl="/sign-in"
+      afterSignOutUrl="/"
       appearance={{
         variables: {
           colorPrimary: "#0B5F5B",

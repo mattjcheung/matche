@@ -247,7 +247,7 @@ export default async function TripPage({ params }: PageProps<"/trips/[slug]">) {
                     {o.rest}
                   </p>
                 ))}
-                <Link href="/" className={styles.essLink}>
+                <Link href="/home" className={styles.essLink}>
                   Meet travellers →
                 </Link>
               </article>

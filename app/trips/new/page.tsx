@@ -18,11 +18,11 @@ export default async function NewTripPage() {
       {/* Focused wizard header: brand + exit, no main nav. */}
       <header className={styles.header}>
         <div className={styles.headerInner}>
-          <Link href="/" className={styles.brand}>
+          <Link href="/home" className={styles.brand}>
             <LogoMark />
             <span className={styles.wordmark}>Matche</span>
           </Link>
-          <Link href="/" className={styles.exit}>
+          <Link href="/home" className={styles.exit}>
             Save &amp; exit
           </Link>
         </div>
